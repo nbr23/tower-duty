@@ -31,7 +31,7 @@ export const menuScreen: Screen = {
         'footer',
         { class: 'menu-credit' },
         h('a', { class: 'menu-fork', href: 'https://github.com/nbr23/tower-duty', target: '_blank', rel: 'noopener' }, icon('github'), 'Fork me on GitHub'),
-        h('p', {}, '\u00a9 2026 ', h('a', { href: 'https://nbr23.com', target: '_blank', rel: 'noopener' }, 'nbr23'), ' \u00b7 MIT License'),
+        h('p', {}, '\u00a9 2026 ', h('a', { href: 'https://nbr23.com', target: '_blank', rel: 'noopener' }, 'nbr23'), ' \u00b7 MIT License \u00b7 v', __APP_VERSION__),
       ),
     ),
   press(app, id, now) {
