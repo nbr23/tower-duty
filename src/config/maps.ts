@@ -797,7 +797,7 @@ export const HUB: MapDef = {
       standPaths([[562, 370], [580, 390]], HUB_APRONS[2].lane, HUB_APRONS[2].park, HUB_APRONS[2].stands, -1)),
   ],
   helipads: [padIn(HUB_SITE, [250, 280], [5]), padIn(HUB_SITE, [350, 280], [6])],
-  landedHoldMs: 2000,
+  landedHoldMs: 500,
   special: { stripIndex: 7, event: 'fastplanewarn' },
   worldScale: 2,
   clouds: false,
