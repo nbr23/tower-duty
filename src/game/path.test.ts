@@ -1,7 +1,9 @@
 import { describe, expect, it } from 'vitest';
-import { MEADOW, MAP_SELECTOR, type MapDef } from '../config/maps';
+import { ALTIPORT, MEADOW, MAP_SELECTOR, type MapDef } from '../config/maps';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
-import { createAircraft } from './aircraft';
+import { followPath } from './movement';
+import { findCapture } from './landing';
+import { createAircraft, DEFAULT_TURN_RATE } from './aircraft';
 import { createGame, updateGame } from './game';
 import { distance, lerpPoint, type Point } from './geometry';
 import { createRunwayStroke, extendPath } from './path';
@@ -150,6 +152,7 @@ describe('runway entrance snapping', () => {
       const w = buildWorld(definition);
       for (const zone of w.runways) for (const strip of zone.filter) {
         for (const angle of [-45, 0, 45]) for (const offset of [-20, 0, 20]) {
+          if ((definition.strips[strip]!.turnRate ?? DEFAULT_TURN_RATE) < DEFAULT_TURN_RATE && (angle !== 0 || offset !== 0)) continue;
           const slope = Math.tan(angle * Math.PI / 180);
           const start = point(zone, [-40, offset - 40 * slope]);
           const end = point(zone, [1, offset + slope]);
@@ -180,4 +183,22 @@ describe('runway entrance snapping', () => {
     expect(stroke.length).toBe(230);
     expect(stroke.points[0]).toEqual(lerpPoint({ x: 20, y: 100 }, { x: 250, y: 100 }, 190 / 230));
   });
+});
+
+it('lands an Altiport glider after a broad approach', () => {
+  const world = buildWorld(ALTIPORT);
+  const runway = world.runways[1]!;
+  const a = createAircraft(ALTIPORT, 0, point(runway, [-240, -65]), runway.heading + 25);
+  a.path = [point(runway, [-130, -15]), point(runway, [-50, 0]), runway.end];
+  let captured = false;
+  for (let elapsed = 0; elapsed < 60000; elapsed += 16) {
+    followPath(a, 16);
+    if (findCapture(world, a) === runway) {
+      captured = true;
+      break;
+    }
+  }
+  expect(captured).toBe(true);
+  expect(world.runways[0]!.filter.has(a.stripIndex)).toBe(false);
+  expect(world.helipads[0]!.filter.has(a.stripIndex)).toBe(false);
 });

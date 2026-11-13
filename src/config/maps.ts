@@ -194,7 +194,7 @@ export const MEADOW: MapDef = {
     runwayIn(MEADOW_SITE, [-36, 160], [52, 70], [2], MEADOW_TAXI_B),
   ],
   helipads: [padIn(MEADOW_SITE, [246, 66], [3])],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
 };
 
 export const FLEET_CARRIER: Frame = { origin: { x: 425, y: 240 }, angle: -5 };
@@ -299,7 +299,7 @@ export const FLEET: MapDef = {
     runwayIn(FLEET_CARRIER, [-245, 10], [-60, -22], [1, 0]),
   ],
   helipads: [padIn(FLEET_CARRIER, [30, -42], [3]), padIn(FLEET_ESCORT, [-72, 0], [3])],
-  landedHoldMs: 2000,
+  landedHoldMs: 500,
   special: { stripIndex: 4 },
 };
 
@@ -326,7 +326,7 @@ export const LAKESIDE: MapDef = {
     runwayIn(LAKESIDE_SITE, [330, -160], [330, -45], [2], standPaths([[320, -38]], -40, -62, [218, 184, 150], 1)),
   ],
   helipads: [padIn(LAKESIDE_SITE, [110, 104], [3]), padIn(LAKESIDE_SITE, [108, -62], [3])],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
 };
 
 export const AIRSHOW_SITE: Frame = { origin: { x: 150, y: 305 }, angle: 7.4 };
@@ -422,7 +422,7 @@ export const AIRSHOW: MapDef = {
     runwayIn(AIRSHOW_SITE, [262, -231], [125, -127], [1, 2]),
   ],
   helipads: [padIn(AIRSHOW_SITE, [466, -101], [0])],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
   special: { stripIndex: 0, recurRandom: 2, recurBase: 5, event: 'zeppelin_arriving' },
 };
 
@@ -465,7 +465,7 @@ export const CANYON: MapDef = {
     },
   ],
   helipads: [{ x: 174, y: 287, strips: [3] }],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
 };
 
 export const COAST_CARRIER: Frame = { origin: { x: 290, y: 335 }, angle: -15 };
@@ -610,7 +610,7 @@ export const COAST: MapDef = {
     padIn(COAST_CARRIER, [25, -41], [3]),
     { x: 770, y: 142, strips: [7] },
   ],
-  landedHoldMs: 2000,
+  landedHoldMs: 500,
   special: { stripIndex: 8 },
   worldScale: 2,
   clouds: false,
@@ -636,7 +636,7 @@ export const ARCTIC_OUTPOST: MapDef = {
     { x1: 575, y1: 95, x2: 610, y2: 215, strips: [0], taxiPaths: [] },
   ],
   helipads: [{ x: 470, y: 292, strips: [3] }, padIn(ARCTIC_ICEBREAKER, [-36, 0], [3])],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
   weather: 'snow',
 };
 
@@ -660,7 +660,7 @@ export const VOLCANO_ISLAND: MapDef = {
     { x: 430, y: 120, strips: [3] },
     { x: 700, y: 336, strips: [3] },
   ],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
   weather: 'ash',
 };
 
@@ -707,7 +707,7 @@ export const CITY_LIGHTS: MapDef = {
     { x: 690, y: 150, strips: [3] },
     { x: 640, y: 360, strips: [3] },
   ],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
   clouds: false,
 };
 
@@ -734,9 +734,30 @@ export const MOON_BASE: MapDef = {
     { x: 720, y: 380, strips: [3], mark: 'target' },
     { x: 160, y: 150, strips: [4], mark: 'target' },
   ],
-  landedHoldMs: 4000,
+  landedHoldMs: 1000,
   special: { stripIndex: 4, recurRandom: 2, recurBase: 3, event: 'ufo_arriving' },
   clouds: false,
+};
+
+export const ALTIPORT: MapDef = {
+  id: 'altiport',
+  title: 'Altiport',
+  background: 'altiport',
+  ...MEADOW_LEVELS,
+  colors: RED_BLUE_YELLOW,
+  strips: [
+    { name: 'glider', weight: 2, type: 0, speed: 0.6, turnRate: 0.3, radius: 16, color: 1 },
+    { name: 'turboprop', weight: 2, type: 0, speed: 1.4, radius: 18, color: 0 },
+    { name: 'bizjet', weight: 1.5, type: 2, speed: 2.0, radius: 12, color: 0 },
+    { name: 'rescue heli', weight: 2, type: 0, speed: 0.85, radius: 11, color: 2 },
+  ],
+  runways: [
+    { x1: 390, y1: 230, x2: 530, y2: 170, strips: [1, 2], taxiPaths: [] },
+    { x1: 390, y1: 290, x2: 570, y2: 320, strips: [0], taxiPaths: [] },
+  ],
+  helipads: [{ x: 650, y: 220, strips: [3] }],
+  landedHoldMs: 1000,
+  weather: 'snow',
 };
 
 export const MAP_SELECTOR: MapDef[] = [
@@ -750,4 +771,5 @@ export const MAP_SELECTOR: MapDef[] = [
   VOLCANO_ISLAND,
   CITY_LIGHTS,
   MOON_BASE,
+  ALTIPORT,
 ];

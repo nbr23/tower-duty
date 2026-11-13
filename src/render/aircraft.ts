@@ -838,7 +838,18 @@ const LUNAR: Record<string, readonly Sprite[]> = {
   ],
 };
 
+const ALPINE: Record<string, readonly Sprite[]> = {
+  glider: [{
+    body: [ellipse(0, 0, 0.78, 0.065), wing(0.02, 0.14, 1), wing(-0.72, -0.61, 0.28)],
+    details: [ellipse(0.38, 0, 0.16, 0.045)],
+  }],
+  turboprop: [TURBOPROP],
+  bizjet: NIGHT.bizjet!,
+  'rescue heli': [CIVIL_HELI],
+};
+
 const FAMILIES: Record<string, Record<string, readonly Sprite[]>> = {
+  'altiport': ALPINE,
   'fleet': CARRIER,
   'airshow': VINTAGE,
   'coast': MILITARY,

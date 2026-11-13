@@ -1,4 +1,5 @@
 import { fillView, type Ctx } from '../art';
+import { altiport } from './altiport';
 import { meadow } from './meadow';
 import { fleet } from './fleet';
 import { lakeside } from './lakeside';
@@ -14,6 +15,7 @@ import type { Painter } from './shared';
 export type { Painter } from './shared';
 
 export const PAINTERS: Record<string, Painter> = {
+  'altiport': altiport,
   'meadow': meadow,
   'fleet': fleet,
   'lakeside': lakeside,
