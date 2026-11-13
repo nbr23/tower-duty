@@ -26,6 +26,7 @@ export interface Aircraft {
   stripIndex: number;
   type: number;
   variant: number;
+  cameo?: string;
   position: Point;
   velocityDir: Point;
   heading: number;

@@ -1,4 +1,4 @@
-import type { MapDef, Strip } from '../config/maps';
+import type { MapDef } from '../config/maps';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
 import type { Aircraft } from '../game/aircraft';
 import { altitude, fadeAlpha, smoothstep } from '../game/landing';
@@ -661,6 +661,128 @@ const VOLCANO: Record<string, readonly Sprite[]> = {
   'island hopper': CIVIL.small!,
 };
 
+const CONCORDE: Sprite = {
+  body: [
+    mirrored([
+      [1.2, 0],
+      [1.02, 0.045],
+      [0.72, 0.075],
+      [0.55, 0.1],
+      [0.28, 0.16],
+      [0, 0.25],
+      [-0.26, 0.38],
+      [-0.46, 0.51],
+      [-0.58, 0.58],
+      [-0.7, 0.58],
+      [-0.74, 0.09],
+      [-0.9, 0.06],
+      [-1, 0],
+    ]),
+  ],
+  details: [
+    ellipse(0.92, 0, 0.1, 0.035),
+    rect(-0.74, 0.17, -0.34, 0.3),
+    rect(-0.74, -0.3, -0.34, -0.17),
+    rect(-0.96, -0.025, -0.42, 0.025),
+  ],
+};
+
+function nacelle(y: number): Polygon {
+  return [
+    [0.34, y],
+    [0.14, y + 0.075],
+    [-0.86, y + 0.075],
+    [-0.86, y - 0.075],
+    [0.14, y - 0.075],
+  ];
+}
+
+const BLACKBIRD: Sprite = {
+  body: [
+    mirrored([
+      [1.2, 0],
+      [0.95, 0.07],
+      [0.5, 0.12],
+      [0.2, 0.15],
+      [-0.44, 0.6],
+      [-0.62, 0.6],
+      [-0.8, 0.36],
+      [-0.8, 0.1],
+      [-1, 0.04],
+      [-1, 0],
+    ]),
+    nacelle(0.34),
+    nacelle(-0.34),
+  ],
+  details: [
+    ellipse(0.78, 0, 0.12, 0.04),
+    rect(-0.8, 0.3, -0.5, 0.345),
+    rect(-0.8, -0.345, -0.5, -0.3),
+    ellipse(-0.86, 0.34, 0.04, 0.06),
+    ellipse(-0.86, -0.34, 0.04, 0.06),
+  ],
+};
+
+const SHUTTLE_CARRIER: Sprite = {
+  body: CARGO_SUPERJET_BASE.body,
+  details: [
+    ellipse(0.87, 0, 0.08, 0.07),
+    mirrored([
+      [0.56, 0],
+      [0.47, 0.08],
+      [0.2, 0.1],
+      [0, 0.15],
+      [-0.3, 0.4],
+      [-0.46, 0.42],
+      [-0.48, 0.1],
+      [-0.56, 0.08],
+      [-0.56, 0],
+    ]),
+  ],
+};
+
+function boom(y: number): Polygon {
+  return [
+    [0.56, y],
+    [0.5, y + 0.07],
+    [0, y + 0.08],
+    [-0.8, y + 0.04],
+    [-0.86, y],
+    [-0.8, y - 0.04],
+    [0, y - 0.08],
+    [0.5, y - 0.07],
+  ];
+}
+
+const LIGHTNING: Sprite = {
+  body: [
+    mirrored([
+      [0.28, 0],
+      [0.26, 0.36],
+      [0.08, 0.97],
+      [0, 1],
+      [-0.08, 0.97],
+      [-0.15, 0.36],
+      [-0.17, 0],
+    ]),
+    rect(-0.86, -0.48, -0.72, 0.48),
+    boom(0.36),
+    boom(-0.36),
+    mirrored([
+      [0.64, 0],
+      [0.56, 0.07],
+      [0.2, 0.1],
+      [-0.18, 0.08],
+      [-0.28, 0],
+    ]),
+  ],
+  details: [ellipse(0.24, 0, 0.13, 0.06), ellipse(-0.28, 0.36, 0.07, 0.04), ellipse(-0.28, -0.36, 0.07, 0.04)],
+  rotors: [
+    { x: 0.6, y: 0.36, r: 0.3, blades: 3 },
+    { x: 0.6, y: -0.36, r: 0.3, blades: 3 },
+  ],
+};
+
 const NAV_PORT = '#ff4040';
 const NAV_STARBOARD = '#40ff70';
 const STROBE = '#ffffff';
@@ -720,6 +842,8 @@ const NIGHT: Record<string, readonly Sprite[]> = {
     },
   ],
   heli: [{ ...CIVIL_HELI, lights: navLights(0.2, 0.42, -1.12) }],
+  concorde: [{ ...CONCORDE, lights: navLights(-0.64, 0.58, -1) }],
+  'shuttle carrier': [{ ...SHUTTLE_CARRIER, lights: navLights(-0.35, 0.98, -1) }],
 };
 
 const HUB: Record<string, readonly Sprite[]> = {
@@ -741,6 +865,8 @@ const HUB: Record<string, readonly Sprite[]> = {
     ...NIGHT.bizjet![0]!,
     details: [...(NIGHT.bizjet![0]!.details ?? []), rect(-0.3, -0.07, 0.04, 0.07), rect(-0.2, -0.2, -0.06, 0.2)],
   }],
+  concorde: NIGHT.concorde!,
+  'shuttle carrier': NIGHT['shuttle carrier']!,
 };
 
 function strut(angle: number, from: number, to: number, width: number): Polygon {
@@ -869,6 +995,14 @@ const ALPINE: Record<string, readonly Sprite[]> = {
   'rescue heli': [CIVIL_HELI],
 };
 
+const CAMEO: Record<string, readonly Sprite[]> = {
+  concorde: [CONCORDE],
+  blackbird: [BLACKBIRD],
+  'shuttle carrier': [SHUTTLE_CARRIER],
+  lightning: [LIGHTNING],
+  saucer: LUNAR.UFO!,
+};
+
 const FAMILIES: Record<string, Record<string, readonly Sprite[]>> = {
   'altiport': ALPINE,
   'fleet': CARRIER,
@@ -881,10 +1015,9 @@ const FAMILIES: Record<string, Record<string, readonly Sprite[]>> = {
   'hub': HUB,
 };
 
-function spriteFor(map: MapDef, strip: Strip | undefined, variant: number): Sprite {
+export function spriteFor(map: MapDef, name: string, variant: number): Sprite {
   const family = FAMILIES[map.background];
-  const name = strip?.name ?? '';
-  const set = family?.[name] ?? CIVIL[name] ?? CARRIER[name] ?? [CIVIL_MEDIUM];
+  const set = family?.[name] ?? CAMEO[name] ?? CIVIL[name] ?? CARRIER[name] ?? [CIVIL_MEDIUM];
   return set[variant % set.length] ?? CIVIL_MEDIUM;
 }
 
@@ -1014,7 +1147,7 @@ function enteringAlpha(a: Aircraft): number {
 }
 
 function drawOne(ctx: CanvasRenderingContext2D, world: World, a: Aircraft, clock: number): void {
-  const sprite = spriteFor(world.map, world.map.strips[a.stripIndex], a.variant);
+  const sprite = spriteFor(world.map, a.cameo ?? world.map.strips[a.stripIndex]?.name ?? '', a.variant);
   const shape = shapeOf(sprite);
   const alt = altitude(a, clock);
   const r = a.radius * enteringScale(a) * lerp(GROUND_SCALE, 1, alt);

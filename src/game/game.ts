@@ -10,6 +10,7 @@ import { buildWorld, type LandingZone, type World } from './world';
 
 export const FAST_FORWARD_SCALE = 2;
 const LANDING_SEED_SALT = 0x9e3779b9;
+const CAMEO_SEED_SALT = 0x85ebca6b;
 
 export type GameEventName = SpawnEvent | 'plane' | 'runway' | 'landed' | 'proximity_warning' | 'crashland';
 
@@ -58,7 +59,7 @@ export function createGame(
 ): Game {
   return {
     world: buildWorld(map),
-    director: createDirector(map, mulberry32(seed), personalBest),
+    director: createDirector(map, mulberry32(seed), personalBest, mulberry32(seed ^ CAMEO_SEED_SALT)),
     aircraft: [],
     clock: 0,
     fastForward,

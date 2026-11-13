@@ -18,6 +18,7 @@ export interface Strip {
   parkSlotScale?: number;
   parkSlots?: ParkSlot[];
   variants?: number;
+  cameos?: string[];
 }
 
 export interface Runway {
@@ -105,7 +106,7 @@ const RED_BLUE_YELLOW = [0xf15c6f, 0x39aadc, 0xc1cd00];
 
 const MEADOW_STRIPS: Strip[] = [
   { name: 'medium', weight: 2, type: 0, speed: 1.55, radius: 15, color: 0 },
-  { name: 'fast', weight: 2, type: 2, speed: 2.4, radius: 15, color: 0 },
+  { name: 'fast', weight: 2, type: 2, speed: 2.4, radius: 15, color: 0, cameos: ['concorde'] },
   { name: 'small', weight: 2, type: 0, speed: 1.05, radius: 11, color: 1 },
   { name: 'heli', weight: 2, type: 0, speed: 0.81, radius: 10.5, color: 2, variants: 3 },
 ];
@@ -239,6 +240,7 @@ export const FLEET: MapDef = {
       speed: 2.6,
       radius: 22,
       color: 0,
+      cameos: ['blackbird'],
       parkSlots: [
         slot(17, 24, 48, 48, 9.5),
         slot(37, 24, 48, 48, 2),
@@ -407,6 +409,7 @@ export const AIRSHOW: MapDef = {
       speed: 1.55,
       radius: 23,
       color: 2,
+      cameos: ['lightning'],
       parkSlots: [
         slot(29.28, 6, 48, 48, 2),
         slot(29.28, 42, 48, 48, 2),
@@ -434,9 +437,9 @@ export const CANYON: MapDef = {
   colors: RED_BLUE_YELLOW,
   strips: [
     { name: 'medium', weight: 2, type: 0, speed: 1.25, radius: 15, color: 0 },
-    { name: 'fast', weight: 1, type: 2, speed: 2.0, radius: 17, color: 0 },
+    { name: 'fast', weight: 1, type: 2, speed: 2.0, radius: 17, color: 0, cameos: ['concorde'] },
     { name: 'small', weight: 2, type: 0, speed: 1.1, radius: 11, color: 1 },
-    { name: 'heli', weight: 1.5, type: 1, speed: 1.0, radius: 12, color: 2 },
+    { name: 'heli', weight: 1.5, type: 1, speed: 1.0, radius: 12, color: 2, cameos: ['saucer'] },
   ],
   runways: [
     {
@@ -511,6 +514,7 @@ export const COAST: MapDef = {
       radius: 25,
       color: 5,
       variants: 4,
+      cameos: ['shuttle carrier'],
       parkSlotScale: 0.64,
       parkSlots: [
         slot(17, 24, 48, 48, 10),
@@ -557,7 +561,7 @@ export const COAST: MapDef = {
       parkSlotScale: 0.5333,
       parkSlots: [slot(20, 20, 48, 48, 14), slot(23.5, 5, 48, 48, 1.8), slot(23.5, 35, 48, 48, 1.8)],
     },
-    { name: 'fast jet', weight: 2, type: 2, speed: 1.2, radius: 15, color: 1, parkSlotScale: 0.5333 },
+    { name: 'fast jet', weight: 2, type: 2, speed: 1.2, radius: 15, color: 1, parkSlotScale: 0.5333, cameos: ['blackbird'] },
     {
       name: 'small',
       weight: 2,
@@ -675,8 +679,8 @@ export const CITY_LIGHTS: MapDef = {
   ...MEADOW_LEVELS,
   colors: [0xffb648, 0x4fc3ff, 0xff5c8a],
   strips: [
-    { name: 'airliner', weight: 2, type: 0, speed: 1.5, radius: 17, color: 0, variants: 3 },
-    { name: 'jumbo', weight: 1.5, type: 2, speed: 2.1, radius: 21, color: 0 },
+    { name: 'airliner', weight: 2, type: 0, speed: 1.5, radius: 17, color: 0, variants: 3, cameos: ['concorde'] },
+    { name: 'jumbo', weight: 1.5, type: 2, speed: 2.1, radius: 21, color: 0, cameos: ['shuttle carrier'] },
     { name: 'regional', weight: 2, type: 0, speed: 1.15, radius: 13, color: 1 },
     { name: 'heli', weight: 2, type: 1, speed: 0.85, radius: 11, color: 2 },
     { name: 'bizjet', weight: 1.5, type: 3, speed: 2.0, radius: 12, color: 1 },
@@ -780,8 +784,8 @@ export const HUB: MapDef = {
   colors: [0xf15c6f, 0x39aadc, 0xdbaa41, 0xc1cd00, 0x41db49],
   strips: [
     { name: 'regional', weight: 2, type: 0, speed: 0.575, radius: 13, color: 1 },
-    { name: 'airliner', weight: 2, type: 0, speed: 0.775, radius: 18, color: 0, variants: 4 },
-    { name: 'jumbo', weight: 1.5, type: 2, speed: 1.05, radius: 25, color: 2 },
+    { name: 'airliner', weight: 2, type: 0, speed: 0.775, radius: 18, color: 0, variants: 4, cameos: ['concorde'] },
+    { name: 'jumbo', weight: 1.5, type: 2, speed: 1.05, radius: 25, color: 2, cameos: ['shuttle carrier'] },
     { name: 'cargo jet', weight: 2, type: 1, speed: 0.65, radius: 22, color: 2 },
     { name: 'bizjet', weight: 1.5, type: 3, speed: 1, radius: 12, color: 1 },
     { name: 'heli', weight: 1, type: 0, speed: 0.405, radius: 11, color: 3 },

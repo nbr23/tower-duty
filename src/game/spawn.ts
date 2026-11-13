@@ -1,4 +1,4 @@
-import type { MapDef, SpecialEvent } from '../config/maps';
+import type { MapDef, SpecialEvent, Strip } from '../config/maps';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
 import { createAircraft, isAirborne, type Aircraft } from './aircraft';
 import { distance, headingDeg, type Point } from './geometry';
@@ -7,6 +7,7 @@ import { randomInt, weightedPick, type Rng } from './rng';
 export const SPAWN_SLOTS = 10;
 export const RECENT_SLOT_MEMORY = 2;
 export const SPAWN_OFFSET = WORLD_HEIGHT / 8;
+export const CAMEO_CHANCE = 1 / 40;
 const BEGINNER_BEST = 100;
 const PERIMETER = 2 * (WORLD_WIDTH + WORLD_HEIGHT);
 const CENTER: Point = { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 };
@@ -35,6 +36,8 @@ export interface SpawnDirector {
   specialDueLevel: number | null;
   recentSlots: number[];
   serial: number;
+  cameoRng: Rng;
+  cameoChance: number;
 }
 
 function quotaFor(map: MapDef, level: number): number {
@@ -50,7 +53,7 @@ function checkSpecialDue(d: SpawnDirector): void {
     d.level + randomInt(d.rng, special.recurRandom ?? strip.weight) + (special.recurBase ?? 1);
 }
 
-export function createDirector(map: MapDef, rng: Rng, personalBest = 0): SpawnDirector {
+export function createDirector(map: MapDef, rng: Rng, personalBest = 0, cameoRng: Rng = rng): SpawnDirector {
   const specialStrip = map.special === undefined ? undefined : map.strips[map.special.stripIndex];
   const d: SpawnDirector = {
     map,
@@ -67,6 +70,8 @@ export function createDirector(map: MapDef, rng: Rng, personalBest = 0): SpawnDi
     specialDueLevel: specialStrip?.type ?? null,
     recentSlots: [],
     serial: 0,
+    cameoRng,
+    cameoChance: CAMEO_CHANCE,
   };
   checkSpecialDue(d);
   return d;
@@ -141,6 +146,12 @@ function pickStrip(d: SpawnDirector): number {
   return picked.index;
 }
 
+function pickCameo(d: SpawnDirector, strip: Strip): string | undefined {
+  const { cameos } = strip;
+  if (cameos === undefined || d.cameoRng() >= d.cameoChance) return undefined;
+  return cameos[randomInt(d.cameoRng, cameos.length)];
+}
+
 function emit(
   d: SpawnDirector,
   stripIndex: number,
@@ -175,6 +186,8 @@ export function tickSpawn(
   }
 
   const result = emit(d, pickStrip(d), aircraft);
+  const cameo = pickCameo(d, d.map.strips[result.aircraft.stripIndex]!);
+  if (cameo !== undefined) result.aircraft.cameo = cameo;
   d.spawnedThisLevel++;
   d.nextSpawnAt = clock + d.interval;
   if (d.spawnedThisLevel === d.quota) levelUp(d);

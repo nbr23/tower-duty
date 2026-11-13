@@ -3,6 +3,7 @@ import type { Audio } from '../audio/engine';
 import { MAP_SELECTOR, type MapDef } from '../config/maps';
 import { clipWorld } from '../config/world';
 import { createGame, drainEvents, updateGame, type Game } from '../game/game';
+import { CAMEO_CHANCE } from '../game/spawn';
 import { createDragController, pointerDown, pointerMove, pointerUp, resetInput } from '../input/drag';
 import { drawAircraft } from '../render/aircraft';
 import { drawClouds } from '../render/clouds';
@@ -23,10 +24,14 @@ export function createDebugMode(storage: Storage, seed: number, audio: Audio): M
   audio.setEnabled(save.prefs.sound);
   let selection = choiceFromHash() ?? 0;
   let taxi = save.prefs.taxi;
+  let cameos = false;
   const input = createDragController();
 
-  const newGame = (map: MapDef): Game =>
-    createGame(map, seed, { personalBest: mapStats(save, map.id).highscore, taxi });
+  const newGame = (map: MapDef): Game => {
+    const created = createGame(map, seed, { personalBest: mapStats(save, map.id).highscore, taxi });
+    created.director.cameoChance = cameos ? 1 : CAMEO_CHANCE;
+    return created;
+  };
 
   let game = newGame(MAP_SELECTOR[selection]!);
 
@@ -50,6 +55,9 @@ export function createDebugMode(storage: Storage, seed: number, audio: Audio): M
     else if (e.key === 't' || e.key === 'T') {
       taxi = !taxi;
       game.taxi = taxi;
+    } else if (e.key === 'c' || e.key === 'C') {
+      cameos = !cameos;
+      game.director.cameoChance = cameos ? 1 : CAMEO_CHANCE;
     }
   });
 
