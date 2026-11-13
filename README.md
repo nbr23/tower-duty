@@ -51,3 +51,8 @@ the canonical and social URLs are written into `index.html` at startup.
 
 Run `npm run icons` to regenerate the favicons, PWA icons, and social card in
 `public/`.
+
+`npm run build` runs `npm run cards`, which renders one link preview image per
+map into `public/cards/` (not committed). Each map has a share page at
+`m/<map-id>/` that uses its image and redirects into the game. Rendering the
+card text needs a sans-serif font installed on the build machine.

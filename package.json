@@ -12,13 +12,15 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
-    "build": "tsc --noEmit && vite build",
+    "build": "tsc --noEmit && npm run cards && vite build",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "icons": "node scripts/gen-icons.mjs",
+    "cards": "node scripts/gen-cards.mjs",
     "preview": "vite preview"
   },
   "devDependencies": {
+    "@napi-rs/canvas": "^1.1.1",
     "typescript": "^5.9.3",
     "vite": "^8.3.8",
     "vite-plugin-pwa": "^2.0.0",

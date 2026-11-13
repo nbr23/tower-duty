@@ -202,10 +202,9 @@ function socialCard() {
       });
     }
   }
-  text('TOWER', 72, 132, 16, [244, 242, 236]);
-  text('DUTY', 72, 272, 16, BACKGROUND);
-  text('DRAW PATHS  LAND PLANES', 76, 432, 4, [244, 242, 236]);
-  text('FREE TO PLAY   WORKS OFFLINE', 76, 494, 3, [154, 163, 173]);
+  text('TOWER', 72, 151, 16, [244, 242, 236]);
+  text('DUTY', 72, 291, 16, BACKGROUND);
+  text('DRAW PATHS  LAND PLANES', 76, 451, 4, [244, 242, 236]);
   return encodePNG(width, height, rgba);
 }
 

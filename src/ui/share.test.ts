@@ -11,7 +11,7 @@ describe('score sharing', () => {
     expect(data).toEqual({
       title: 'Tower Duty',
       text: `I landed 120 aircraft on ${MEADOW.title} in Tower Duty! Rank: CoPilot. Can you beat it?`,
-      url: 'https://example.com/play/#meadow',
+      url: 'https://example.com/play/m/meadow/',
     });
     expect(scoreShareData(MEADOW, 1, true, 'https://example.com/').text).toContain('My high score: 1 aircraft landed');
   });
@@ -23,6 +23,22 @@ describe('score sharing', () => {
     expect(await shareScore(data)).toBe('shared');
     expect(share).toHaveBeenCalledWith(data);
     expect(writeText).not.toHaveBeenCalled();
+  });
+
+  it('attaches the score card when files can be shared', async () => {
+    const card = new File(['card'], 'card.png', { type: 'image/png' });
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { share, canShare: () => true });
+    expect(await shareScore(data, card)).toBe('shared');
+    expect(share).toHaveBeenCalledWith({ ...data, files: [card] });
+  });
+
+  it('shares without the score card when files cannot be shared', async () => {
+    const card = new File(['card'], 'card.png', { type: 'image/png' });
+    const share = vi.fn().mockResolvedValue(undefined);
+    vi.stubGlobal('navigator', { share, canShare: (payload: ShareData) => payload.files === undefined });
+    expect(await shareScore(data, card)).toBe('shared');
+    expect(share).toHaveBeenCalledWith(data);
   });
 
   it('does not copy when native sharing is cancelled', async () => {
