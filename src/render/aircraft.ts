@@ -2,6 +2,7 @@ import type { MapDef, Strip } from '../config/maps';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
 import type { Aircraft } from '../game/aircraft';
 import { altitude, fadeAlpha, smoothstep } from '../game/landing';
+import { SPAWN_OFFSET } from '../game/spawn';
 import type { World } from '../game/world';
 import { hex, mix } from './color';
 
@@ -963,12 +964,20 @@ function lerp(from: number, to: number, t: number): number {
   return from + (to - from) * t;
 }
 
+function edgeInset(a: Aircraft): number {
+  const { x, y } = a.position;
+  return Math.min(x, WORLD_WIDTH - x, y, WORLD_HEIGHT - y);
+}
+
 function enteringScale(a: Aircraft): number {
   if (!a.flags.entering) return 1;
-  const { x, y } = a.position;
-  const inset = Math.min(x, WORLD_WIDTH - x, y, WORLD_HEIGHT - y);
-  const t = Math.max(0, Math.min(1, (inset + a.radius) / (2 * a.radius)));
+  const t = Math.max(0, Math.min(1, (edgeInset(a) + a.radius) / (2 * a.radius)));
   return ENTERING_MIN_SCALE + (1 - ENTERING_MIN_SCALE) * smoothstep(t);
+}
+
+function enteringAlpha(a: Aircraft): number {
+  if (!a.flags.entering) return 1;
+  return smoothstep(Math.max(0, Math.min(1, 1 + edgeInset(a) / SPAWN_OFFSET)));
 }
 
 function drawOne(ctx: CanvasRenderingContext2D, world: World, a: Aircraft, clock: number): void {
@@ -977,7 +986,7 @@ function drawOne(ctx: CanvasRenderingContext2D, world: World, a: Aircraft, clock
   const alt = altitude(a, clock);
   const r = a.radius * enteringScale(a) * lerp(GROUND_SCALE, 1, alt);
   const flicker = a.flags.crashed && Math.floor(clock / CRASH_FLICKER_MS) % 2 === 1 ? CRASH_FLICKER_ALPHA : 1;
-  const alpha = fadeAlpha(a, clock) * flicker;
+  const alpha = fadeAlpha(a, clock) * flicker * enteringAlpha(a);
   const shadow = {
     x: lerp(SHADOW_GROUND.x, SHADOW_FLYING.x, alt),
     y: lerp(SHADOW_GROUND.y, SHADOW_FLYING.y, alt),

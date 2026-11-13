@@ -38,6 +38,8 @@
 @media (pointer: coarse) {
   :root {
     --target: max(48px, 2.6rem);
+    --hud-x: max(var(--safe-left), var(--safe-right), 1.5rem);
+    font-size: clamp(15px, calc(11px + 1.2vmin), 20px);
   }
 }
 
@@ -929,8 +931,8 @@ label.setting {
 .hud-top {
   position: absolute;
   top: max(var(--safe-top), 0.4rem);
-  right: var(--edge-right);
-  left: var(--edge-left);
+  right: var(--hud-x, var(--edge-right));
+  left: var(--hud-x, var(--edge-left));
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   align-items: center;
@@ -990,11 +992,11 @@ label.setting {
 }
 
 .hud-left {
-  left: max(var(--safe-left), 0.6rem);
+  left: var(--hud-x, max(var(--safe-left), 0.6rem));
 }
 
 .hud-right {
-  right: max(var(--safe-right), 0.6rem);
+  right: var(--hud-x, max(var(--safe-right), 0.6rem));
 }
 
 .hud-btn[aria-pressed='true'] {
@@ -1005,6 +1007,17 @@ label.setting {
 
 .hud-btn:disabled {
   visibility: hidden;
+}
+
+@media (pointer: coarse) {
+  .hud {
+    --target: max(52px, 2.8rem);
+  }
+
+  .pill {
+    padding: 0.3rem 0.7rem;
+    font-size: 1rem;
+  }
 }
 
 @media (hover: hover) {

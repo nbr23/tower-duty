@@ -12,7 +12,7 @@ import { mapSelectScreen } from './screens/mapSelect';
 import { menuScreen } from './screens/menu';
 import { pauseScreen } from './screens/pause';
 import { playScreen } from './screens/play';
-import { applyFullscreen, prefsScreen } from './screens/prefs';
+import { applyFullscreen, fullscreenWanted, prefsScreen } from './screens/prefs';
 
 const SCREENS: Record<ScreenId, Screen> = {
   menu: menuScreen,
@@ -41,7 +41,7 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
   window.addEventListener(
     'pointerup',
     () => {
-      if (app.save.prefs.fullscreen) applyFullscreen(true);
+      if (fullscreenWanted(app.save.prefs)) applyFullscreen(true);
     },
     { capture: true, once: true },
   );

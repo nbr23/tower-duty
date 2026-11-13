@@ -8,6 +8,7 @@ import { createApp } from './ui/app';
 import { choiceFromHash, createDebugMode } from './ui/debugShell';
 import type { Mode } from './ui/mode';
 import { createAppMode } from './ui/shell';
+import { fitViewport } from './ui/viewport';
 
 const canvas = document.querySelector<HTMLCanvasElement>('#game')!;
 const ctx = canvas.getContext('2d')!;
@@ -21,6 +22,9 @@ function dprCap(): number {
 }
 
 const maxDpr = dprCap();
+
+const TOUCH_OVERSCAN = 1.06;
+const coarsePointer = window.matchMedia('(pointer: coarse)');
 
 interface Viewport {
   scale: number;
@@ -43,14 +47,13 @@ function computeViewport(): Viewport {
   canvas.style.width = `${cssWidth}px`;
   canvas.style.height = `${cssHeight}px`;
 
-  const top = safeInset('top');
-  const left = safeInset('left');
-  const safeWidth = cssWidth - left - safeInset('right');
-  const safeHeight = cssHeight - top - safeInset('bottom');
-  const scale = Math.min(safeWidth / WORLD_WIDTH, safeHeight / WORLD_HEIGHT);
-  const offsetX = left + (safeWidth - WORLD_WIDTH * scale) / 2;
-  const offsetY = top + (safeHeight - WORLD_HEIGHT * scale) / 2;
-  return { scale, offsetX, offsetY, dpr };
+  const fit = fitViewport({
+    width: cssWidth,
+    height: cssHeight,
+    insets: { top: safeInset('top'), right: safeInset('right'), bottom: safeInset('bottom'), left: safeInset('left') },
+    overscan: coarsePointer.matches ? TOUCH_OVERSCAN : 1,
+  });
+  return { ...fit, dpr };
 }
 
 let viewport = computeViewport();
@@ -64,6 +67,7 @@ function refreshViewportNextFrame(): void {
 }
 
 window.addEventListener('resize', refreshViewport);
+document.addEventListener('fullscreenchange', refreshViewportNextFrame);
 if (screen.orientation !== undefined) screen.orientation.addEventListener('change', refreshViewportNextFrame);
 else window.addEventListener('orientationchange', refreshViewportNextFrame);
 

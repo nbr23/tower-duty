@@ -21,8 +21,16 @@ export function applyFullscreen(on: boolean): void {
   else if (!on && active) document.exitFullscreen?.().catch(() => undefined);
 }
 
+export function fullscreenWanted(prefs: Prefs): boolean {
+  return prefs.fullscreen ?? window.matchMedia('(pointer: coarse)').matches;
+}
+
+function toggleValue(prefs: Prefs, key: Toggle): boolean {
+  return key === 'fullscreen' ? fullscreenWanted(prefs) : prefs[key];
+}
+
 function toggleKey(app: App, key: Toggle): void {
-  const value = !app.save.prefs[key];
+  const value = !toggleValue(app.save.prefs, key);
   setPrefs(app, { [key]: value });
   if (key === 'fullscreen') applyFullscreen(value);
 }
@@ -39,7 +47,7 @@ export const prefsScreen: Screen = {
         h(
           'div',
           { class: 'panel settings' },
-          ...TOGGLES.map(([key, label]) => toggle(key, label, app.save.prefs[key])),
+          ...TOGGLES.map(([key, label]) => toggle(key, label, toggleValue(app.save.prefs, key))),
           h('div', { class: 'setting' }, h('span', { class: 'setting-label' }, 'Language'), h('span', { class: 'muted' }, 'English')),
         ),
       ),

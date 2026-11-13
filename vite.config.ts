@@ -37,7 +37,7 @@ export default defineConfig(({ mode }) => {
         id: './',
         lang: 'en',
         categories: ['games', 'entertainment'],
-        display: 'standalone',
+        display: 'fullscreen',
         orientation: 'landscape',
         start_url: '.',
         scope: './',

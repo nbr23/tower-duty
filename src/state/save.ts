@@ -1,6 +1,8 @@
 import { rankFor } from '../game/ranks';
 
 export const SAVE_KEY = 'tower-duty/v1';
+const SAVE_VERSION = 2;
+const FULLSCREEN_PREF_VERSION = 2;
 
 export interface MapStats {
   highscore: number;
@@ -17,10 +19,11 @@ export interface Prefs {
   taxi: boolean;
   fastForwardOnStart: boolean;
   language: 'en';
-  fullscreen: boolean;
+  fullscreen?: boolean;
 }
 
 export interface Save {
+  version: number;
   maps: Record<string, MapStats>;
   landedTotal: number;
   prefs: Prefs;
@@ -45,13 +48,13 @@ export const DEFAULT_PREFS: Prefs = {
   taxi: true,
   fastForwardOnStart: false,
   language: 'en',
-  fullscreen: false,
 };
 
 const EMPTY_STATS: MapStats = { highscore: 0, bestRank: 0, flightTimeMs: 0, maxInAir: 0, landed: 0 };
 
 export function defaultSave(): Save {
   return {
+    version: SAVE_VERSION,
     maps: {},
     landedTotal: 0,
     prefs: { ...DEFAULT_PREFS },
@@ -82,8 +85,9 @@ function parseStats(value: unknown): MapStats {
   };
 }
 
-function parsePrefs(value: unknown): Prefs {
+function parsePrefs(value: unknown, version: number): Prefs {
   const v = isRecord(value) ? value : {};
+  const fullscreen = version >= FULLSCREEN_PREF_VERSION && typeof v.fullscreen === 'boolean' ? { fullscreen: v.fullscreen } : {};
   return {
     sound: bool(v.sound, DEFAULT_PREFS.sound),
     highlights: bool(v.highlights, DEFAULT_PREFS.highlights),
@@ -91,7 +95,7 @@ function parsePrefs(value: unknown): Prefs {
     taxi: bool(v.taxi, DEFAULT_PREFS.taxi),
     fastForwardOnStart: bool(v.fastForwardOnStart, DEFAULT_PREFS.fastForwardOnStart),
     language: 'en',
-    fullscreen: bool(v.fullscreen, DEFAULT_PREFS.fullscreen),
+    ...fullscreen,
   };
 }
 
@@ -109,7 +113,7 @@ export function parseSave(raw: string | null): Save {
     for (const [id, stats] of Object.entries(data.maps)) save.maps[id] = parseStats(stats);
   }
   save.landedTotal = num(data.landedTotal, 0);
-  save.prefs = parsePrefs(data.prefs);
+  save.prefs = parsePrefs(data.prefs, num(data.version, 1));
   save.lastMap = num(isRecord(data.lastMap) ? data.lastMap.index : data.lastMap, 0);
   return save;
 }

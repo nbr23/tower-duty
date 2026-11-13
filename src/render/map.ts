@@ -1,4 +1,4 @@
-import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
+import { VIEW, WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
 import type { Point } from '../game/geometry';
 import type { HelipadZone, LandingZone, RunwayZone, World } from '../game/world';
 import { drawBackground, paintArt } from './background';
@@ -10,6 +10,8 @@ const ZONE_CASING_WIDTH = 6.5;
 const PAD_LABEL_MAX = 24;
 const ZONE_CASING = 'rgba(17, 21, 26, 0.5)';
 const PAD_TINT = 0.16;
+const SURROUND_DIM = 'rgba(17, 21, 26, 0.35)';
+const SURROUND_EDGE = 'rgba(244, 242, 236, 0.18)';
 
 export function stripColor(world: World, stripIndex: number): string {
   const strip = world.map.strips[stripIndex];
@@ -108,6 +110,17 @@ export function drawZones(ctx: CanvasRenderingContext2D, world: World): void {
 export function drawMap(ctx: CanvasRenderingContext2D, world: World, bleed = false): void {
   drawBackground(ctx, world, bleed);
   drawZones(ctx, world);
+}
+
+export function drawSurround(ctx: CanvasRenderingContext2D): void {
+  ctx.beginPath();
+  ctx.rect(VIEW.x, VIEW.y, VIEW.w, VIEW.h);
+  ctx.rect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
+  ctx.fillStyle = SURROUND_DIM;
+  ctx.fill('evenodd');
+  ctx.strokeStyle = SURROUND_EDGE;
+  ctx.lineWidth = 1;
+  ctx.strokeRect(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 }
 
 export function paintThumbnail(world: World, width: number): HTMLCanvasElement {
