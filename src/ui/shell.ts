@@ -50,10 +50,25 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
   let view: HTMLElement | null = null;
   let dirty = false;
   let keyboard = false;
+  let guarded = false;
+  let unwinding = false;
   const screen = (): Screen => SCREENS[app.screen];
+  const backAction = (): string | undefined => screen().keys?.Escape;
 
   function action(id: string): HTMLElement | null {
     return enabled(view?.querySelector<HTMLElement>(`[data-action="${id}"]`) ?? null);
+  }
+
+  function syncBackGuard(): void {
+    const wanted = backAction() !== undefined;
+    if (wanted === guarded || unwinding) return;
+    guarded = wanted;
+    if (wanted) {
+      history.pushState(history.state, '');
+    } else {
+      unwinding = true;
+      history.back();
+    }
   }
 
   function mount(): void {
@@ -106,6 +121,16 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
     if (el instanceof HTMLInputElement) press(el.dataset.action!, false);
   });
 
+  window.addEventListener('popstate', () => {
+    if (unwinding) {
+      unwinding = false;
+      return;
+    }
+    guarded = false;
+    const id = backAction();
+    if (id !== undefined && action(id) !== null) press(id);
+  });
+
   window.addEventListener('pointerdown', () => (keyboard = false), { capture: true });
 
   window.addEventListener('keydown', (e) => {
@@ -137,6 +162,7 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
     },
     render(ctx) {
       mount();
+      syncBackGuard();
       const now = performance.now();
       screen().draw(ctx, app, now);
       if (view !== null) screen().frame?.(view, app, now);
