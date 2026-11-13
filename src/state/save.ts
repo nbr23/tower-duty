@@ -39,7 +39,7 @@ export interface RecordOutcome {
 }
 
 export const DEFAULT_PREFS: Prefs = {
-  sound: true,
+  sound: false,
   highlights: true,
   clouds: true,
   taxi: true,
