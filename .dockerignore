@@ -1,0 +1,10 @@
+node_modules
+dist
+dev-dist
+.git
+*.local
+*.md
+Dockerfile
+docker-compose.yml
+.dockerignore
+**/.archive

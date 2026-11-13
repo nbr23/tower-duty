@@ -1,0 +1,9 @@
+services:
+  web:
+    build:
+      context: .
+      args:
+        SITE_URL: "${SITE_URL:-}"
+    ports:
+      - "${PORT:-8080}:80"
+    restart: unless-stopped
