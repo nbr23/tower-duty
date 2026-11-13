@@ -4,10 +4,11 @@ import { mapStats } from '../../state/save';
 import { goto, type App } from '../app';
 import { formatDuration } from '../format';
 import type { Screen } from '../screen';
+import { scoreShare } from '../share';
 import { h, screen, screenHeader } from '../widgets';
 import { drawBackdrop } from './backdrop';
 
-const COLUMNS = ['Map', 'Best', 'Rank', 'Landed', 'Flight time', 'Max in air'];
+const COLUMNS = ['Map', 'Best', 'Rank', 'Landed', 'Flight time', 'Max in air', 'Share'];
 const NUMERIC = new Set([1, 3, 4, 5]);
 
 function rows(app: App): HTMLTableRowElement[] {
@@ -22,6 +23,7 @@ function rows(app: App): HTMLTableRowElement[] {
       h('td', { class: 'num' }, String(stats.landed)),
       h('td', { class: 'num' }, formatDuration(stats.flightTimeMs)),
       h('td', { class: 'num' }, String(stats.maxInAir)),
+      h('td', {}, scoreShare(map, stats.highscore, true)),
     );
   });
 }

@@ -260,6 +260,53 @@ body {
   gap: var(--gap);
 }
 
+.menu-credit {
+  display: grid;
+  grid-column: 1 / -1;
+  justify-items: center;
+  gap: 0.5rem;
+  color: var(--muted);
+  font-size: var(--small);
+  text-align: center;
+}
+
+.menu-credit a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+}
+
+.menu-credit a:hover,
+.menu-credit a:focus-visible {
+  color: var(--text);
+}
+
+.menu-credit .menu-fork {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.4rem 0.85rem;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  font-weight: 600;
+  text-decoration: none;
+}
+
+.menu-fork:hover,
+.menu-fork:focus-visible {
+  border-color: var(--line-strong);
+}
+
+.menu-fork .icon {
+  width: 0.95rem;
+  height: 0.95rem;
+  opacity: 0.7;
+}
+
+.menu-fork:hover .icon,
+.menu-fork:focus-visible .icon {
+  opacity: 1;
+}
+
 .menu-map {
   display: grid;
   gap: 0.45rem;
@@ -602,6 +649,34 @@ label.setting {
 
 .scores-total strong {
   color: var(--text);
+}
+
+.score-share {
+  display: grid;
+  gap: 0.4rem;
+}
+
+.share-status:empty {
+  display: none;
+}
+
+.scores .share-status {
+  max-width: 14rem;
+  white-space: normal;
+}
+
+.share-text {
+  width: 100%;
+  min-width: 12rem;
+  padding: 0.5rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--ink);
+  color: var(--text);
+  font: inherit;
+  font-size: var(--small);
+  user-select: text;
+  -webkit-user-select: text;
 }
 
 .help {

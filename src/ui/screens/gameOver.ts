@@ -2,6 +2,7 @@ import { percentileFor, pointsToNextRank, rankFor, rankName, rankProgress } from
 import { goto, mainMenu, startGame, type Session } from '../app';
 import { dim, fadeProgress, GAME_OVER_FADE_MS } from '../fade';
 import type { Screen } from '../screen';
+import { scoreShare } from '../share';
 import { button, h, screen } from '../widgets';
 import { drawPlayFrame } from './play';
 
@@ -50,6 +51,7 @@ export const gameOverScreen: Screen = {
           session.outcome?.newHighscore ? h('span', { class: 'badge' }, 'New best!') : null,
         ),
         rankBlock(session),
+        scoreShare(session.game.world.map, session.game.score),
         h(
           'div',
           { class: 'actions' },
