@@ -722,6 +722,27 @@ const NIGHT: Record<string, readonly Sprite[]> = {
   heli: [{ ...CIVIL_HELI, lights: navLights(0.2, 0.42, -1.12) }],
 };
 
+const HUB: Record<string, readonly Sprite[]> = {
+  regional: NIGHT.regional!,
+  airliner: [
+    ...NIGHT.airliner!,
+    {
+      body: CIVIL_MEDIUM.body,
+      details: [...AIRLINER_DETAILS, rect(-0.65, -0.08, 0.5, 0.08), TAIL_STRIPE],
+      lights: AIRLINER_LIGHTS,
+    },
+  ],
+  jumbo: NIGHT.jumbo!,
+  'cargo jet': CIVIL['cargo jet']!,
+  bizjet: NIGHT.bizjet!,
+  heli: NIGHT.heli!,
+  'rescue heli': [{ ...CIVIL.heli![1]!, lights: navLights(0.1, 0.4, -1.2) }],
+  'medevac jet': [{
+    ...NIGHT.bizjet![0]!,
+    details: [...(NIGHT.bizjet![0]!.details ?? []), rect(-0.3, -0.07, 0.04, 0.07), rect(-0.2, -0.2, -0.06, 0.2)],
+  }],
+};
+
 function strut(angle: number, from: number, to: number, width: number): Polygon {
   const c = Math.cos(angle);
   const s = Math.sin(angle);
@@ -857,6 +878,7 @@ const FAMILIES: Record<string, Record<string, readonly Sprite[]>> = {
   'volcano-island': VOLCANO,
   'city-lights': NIGHT,
   'moon-base': LUNAR,
+  'hub': HUB,
 };
 
 function spriteFor(map: MapDef, strip: Strip | undefined, variant: number): Sprite {

@@ -17,6 +17,7 @@ const MEADOW = [0, 63, 102, 120, 144, 179, 245, 324, 469, 608];
 const FLEET = [0, 44, 84, 100, 117, 140, 180, 223, 290, 355];
 const AIRSHOW = [0, 26, 57, 75, 94, 126, 187, 261, 391, 501];
 const CANYON = [0, 52, 102, 128, 159, 198, 261, 341, 469, 574];
+const COAST = [0, 50, 100, 114, 130, 151, 190, 227, 286, 348];
 
 export const RANK_THRESHOLDS: Readonly<Record<string, readonly number[]>> = {
   'meadow': MEADOW,
@@ -24,12 +25,13 @@ export const RANK_THRESHOLDS: Readonly<Record<string, readonly number[]>> = {
   'fleet': FLEET,
   'airshow': AIRSHOW,
   'canyon': CANYON,
-  'coast': [0, 50, 100, 114, 130, 151, 190, 227, 286, 348],
+  'coast': COAST,
   'arctic-outpost': CANYON,
   'volcano-island': MEADOW,
   'city-lights': MEADOW,
   'moon-base': AIRSHOW,
   'altiport': MEADOW,
+  'hub': COAST,
 };
 
 export function thresholdsFor(mapId: string): readonly number[] {

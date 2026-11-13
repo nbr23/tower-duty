@@ -471,10 +471,7 @@ export const CANYON: MapDef = {
 export const COAST_CARRIER: Frame = { origin: { x: 290, y: 335 }, angle: -15 };
 export const COAST_ASSAULT_SHIP: Frame = { origin: { x: 170, y: 120 }, angle: -15 };
 
-export const COAST: MapDef = {
-  id: 'coast',
-  title: 'Coast',
-  background: 'coast',
+const COAST_LEVELS = {
   planesPerLevel: [3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 16],
   intervals: [
     8250, 7500, 6750, 6000, 5625, 5250, 4950, 4650, 4425, 4200, 3975, 3750, 3600, 3450, 3300,
@@ -486,6 +483,13 @@ export const COAST: MapDef = {
   ],
   intervalDecay: 7,
   pauseDecay: 30,
+};
+
+export const COAST: MapDef = {
+  id: 'coast',
+  title: 'Coast',
+  background: 'coast',
+  ...COAST_LEVELS,
   colors: [0xffffff, 0xf15c6f, 0x39aadc, 0xc1cd00, 0x41db49, 0xdbaa41, 0x7f41d8],
   strips: [
     {
@@ -760,6 +764,46 @@ export const ALTIPORT: MapDef = {
   weather: 'snow',
 };
 
+export const HUB_SITE: Frame = { origin: { x: 0, y: 0 }, angle: 0 };
+export const HUB_TERMINAL = { x: 594, y: 160, w: 198, h: 20 };
+export const HUB_APRONS = [
+  { lane: 100, park: 140, stands: [620, 670, 720, 770] },
+  { lane: 230, park: 200, stands: [620, 670, 720, 770] },
+  { lane: 390, park: 420, stands: [620, 680, 740] },
+] as const;
+
+export const HUB: MapDef = {
+  id: 'hub',
+  title: 'Hub',
+  background: 'hub',
+  ...COAST_LEVELS,
+  colors: [0xf15c6f, 0x39aadc, 0xdbaa41, 0xc1cd00, 0x41db49],
+  strips: [
+    { name: 'regional', weight: 2, type: 0, speed: 0.575, radius: 13, color: 1 },
+    { name: 'airliner', weight: 2, type: 0, speed: 0.775, radius: 18, color: 0, variants: 4 },
+    { name: 'jumbo', weight: 1.5, type: 2, speed: 1.05, radius: 25, color: 2 },
+    { name: 'cargo jet', weight: 2, type: 1, speed: 0.65, radius: 22, color: 2 },
+    { name: 'bizjet', weight: 1.5, type: 3, speed: 1, radius: 12, color: 1 },
+    { name: 'heli', weight: 1, type: 0, speed: 0.405, radius: 11, color: 3 },
+    { name: 'rescue heli', weight: 1, type: 1, speed: 0.475, radius: 12, color: 4 },
+    { name: 'medevac jet', weight: 2, type: 5, speed: 2.25, radius: 14, color: 1, special: true },
+  ],
+  runways: [
+    runwayIn(HUB_SITE, [180, 130], [520, 130], [1],
+      standPaths([[542, 126], [558, 100]], HUB_APRONS[0].lane, HUB_APRONS[0].park, HUB_APRONS[0].stands, -1)),
+    runwayIn(HUB_SITE, [180, 200], [520, 200], [0, 4, 7],
+      standPaths([[542, 206], [558, 230]], HUB_APRONS[1].lane, HUB_APRONS[1].park, HUB_APRONS[1].stands, -1)),
+    runwayIn(HUB_SITE, [140, 365], [540, 365], [2, 3],
+      standPaths([[562, 370], [580, 390]], HUB_APRONS[2].lane, HUB_APRONS[2].park, HUB_APRONS[2].stands, -1)),
+  ],
+  helipads: [padIn(HUB_SITE, [250, 280], [5]), padIn(HUB_SITE, [350, 280], [6])],
+  landedHoldMs: 2000,
+  special: { stripIndex: 7, event: 'fastplanewarn' },
+  worldScale: 2,
+  clouds: false,
+  parkedWarningMargin: 16,
+};
+
 export const MAP_SELECTOR: MapDef[] = [
   MEADOW,
   FLEET,
@@ -772,4 +816,5 @@ export const MAP_SELECTOR: MapDef[] = [
   CITY_LIGHTS,
   MOON_BASE,
   ALTIPORT,
+  HUB,
 ];

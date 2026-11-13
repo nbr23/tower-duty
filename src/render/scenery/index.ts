@@ -10,6 +10,7 @@ import { arcticOutpost } from './arctic-outpost';
 import { volcanoIsland } from './volcano-island';
 import { cityLights } from './city-lights';
 import { moonBase } from './moon-base';
+import { hub } from './hub';
 import type { Painter } from './shared';
 
 export type { Painter } from './shared';
@@ -26,6 +27,7 @@ export const PAINTERS: Record<string, Painter> = {
   'volcano-island': volcanoIsland,
   'city-lights': cityLights,
   'moon-base': moonBase,
+  'hub': hub,
 };
 
 export function paintPlain(g: Ctx): void {
