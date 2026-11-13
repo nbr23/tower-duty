@@ -30,9 +30,10 @@ Serve the generated `dist/` directory with a static web server. Use
 `npm run preview` to preview the production build locally. Serve production over
 HTTPS for service worker and installation support.
 
-Set `SITE_URL` to the public HTTP(S) origin at build time to generate canonical
-and absolute social image URLs. It must contain no path, query, fragment, or
-credentials.
+Set `SITE_URL` to the public HTTP(S) URL of the app at build time to generate
+canonical and absolute social image URLs. It may include a path, which must end
+in `/`, and must contain no query, fragment, or credentials. The build uses
+relative URLs, so the app can be served under any path prefix.
 
 ## Docker
 
@@ -40,9 +41,11 @@ credentials.
 docker compose up --build -d
 ```
 
-The app is served on port 8080 by default. Set `PORT` to change the exposed port
-and `SITE_URL` to configure the public origin used during the build. The image
-builds the app with Node.js and serves it with nginx.
+The app is served on port 8080 by default. Set `PORT` to change the exposed port.
+The image builds the app with Node.js and serves it with nginx. It is not tied
+to a URL: set the `SITE_URL` environment variable on the container to the public
+URL it is served at (path ending in `/`, letters, digits and `._~:/%+-` only) and
+the canonical and social URLs are written into `index.html` at startup.
 
 ## Assets
 

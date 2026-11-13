@@ -4,24 +4,27 @@ import { VitePWA } from 'vite-plugin-pwa';
 export default defineConfig(({ mode }) => {
   const siteUrl = loadEnv(mode, '.', '').SITE_URL;
   const url = siteUrl ? new URL(siteUrl) : undefined;
-  const origin = url?.origin;
-  if (url && (!['http:', 'https:'].includes(url.protocol) || url.pathname !== '/' || url.search || url.hash || url.username || url.password)) {
-    throw new Error('SITE_URL must be an HTTP(S) origin without a path.');
+  if (url && (!['http:', 'https:'].includes(url.protocol) || !url.pathname.endsWith('/') || url.search || url.hash || url.username || url.password)) {
+    throw new Error('SITE_URL must be an HTTP(S) URL whose path ends in "/", without query, fragment, or credentials.');
   }
   return {
+  base: './',
   plugins: [
     {
       name: 'site-metadata',
-      transformIndexHtml(html) {
-        if (!origin) return html;
-        const escapedOrigin = origin.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
-        return {
-          html: html.replaceAll('content="/social-card.png"', `content="${escapedOrigin}/social-card.png"`),
-          tags: [
-            { tag: 'link', attrs: { rel: 'canonical', href: `${origin}/` }, injectTo: 'head' },
-            { tag: 'meta', attrs: { property: 'og:url', content: `${origin}/` }, injectTo: 'head' },
-          ],
-        };
+      transformIndexHtml: {
+        order: 'pre',
+        handler(html) {
+          if (!url) return html;
+          const socialCard = new URL('social-card.png', url).href.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
+          return {
+            html: html.replaceAll('content="/social-card.png"', `content="${socialCard}"`),
+            tags: [
+              { tag: 'link', attrs: { rel: 'canonical', href: url.href }, injectTo: 'head' },
+              { tag: 'meta', attrs: { property: 'og:url', content: url.href }, injectTo: 'head' },
+            ],
+          };
+        },
       },
     },
     VitePWA({
@@ -31,13 +34,13 @@ export default defineConfig(({ mode }) => {
         name: 'Tower Duty',
         short_name: 'Tower Duty',
         description: 'Draw flight paths, guide aircraft to land, and keep the skies safe.',
-        id: '/',
+        id: './',
         lang: 'en',
         categories: ['games', 'entertainment'],
         display: 'standalone',
         orientation: 'landscape',
-        start_url: '/',
-        scope: '/',
+        start_url: '.',
+        scope: './',
         theme_color: '#11151a',
         background_color: '#11151a',
         icons: [
