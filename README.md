@@ -12,7 +12,7 @@ support as an installable progressive web app.
 
 ## Development
 
-Use Node.js 24 and npm.
+Use Node.js 26 and npm.
 
 ```sh
 npm ci
