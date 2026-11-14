@@ -1,5 +1,5 @@
 import { clipWorld } from '../../config/world';
-import { drawAircraft } from '../../render/aircraft';
+import { drawAircraft, drawEntryCues } from '../../render/aircraft';
 import { drawClouds } from '../../render/clouds';
 import { drawCrashFx, drawWarningRings } from '../../render/collision';
 import { drawMap, drawSurround } from '../../render/map';
@@ -23,6 +23,7 @@ export function drawPlayFrame(ctx: CanvasRenderingContext2D, app: App, session: 
   drawAircraft(ctx, game.world, game.aircraft, game.clock);
   drawCrashFx(ctx, game.crashes, game.clock);
   if (app.save.prefs.clouds && game.world.map.clouds !== false) drawClouds(ctx, game.world, game.clock);
+  drawEntryCues(ctx, game.aircraft, game.clock);
 }
 
 export const playScreen: Screen = {

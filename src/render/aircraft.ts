@@ -3,8 +3,10 @@ import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
 import type { Aircraft } from '../game/aircraft';
 import { altitude, fadeAlpha, smoothstep } from '../game/landing';
 import { SPAWN_OFFSET } from '../game/spawn';
+import type { Point } from '../game/geometry';
 import type { World } from '../game/world';
 import { hex, mix } from './color';
+import { drawArrowhead } from './map';
 
 const UNCOLORED = 0xffffff;
 const INK = 0x11151a;
@@ -26,6 +28,11 @@ const LIGHT_CORE = 1.3;
 const LIGHT_HALO = 3.4;
 const LIGHT_HALO_ALPHA = 0.35;
 const LIGHT_PHASE_SPAN = 10000;
+const CUE_COLOR = '#f4f2ec';
+const CUE_SIZE = 13;
+const CUE_INSET = 3;
+const CUE_PULSE_MS = 220;
+const CUE_PULSE_DEPTH = 0.4;
 
 type Polygon = readonly (readonly [number, number])[];
 
@@ -1242,4 +1249,33 @@ export function drawAircraft(
   const landed = aircraft.filter((a) => a.behaviour !== 'flying');
   const flying = aircraft.filter((a) => a.behaviour === 'flying');
   for (const a of [...landed, ...flying]) drawOne(ctx, world, a, clock);
+}
+
+function entryPoint(a: Aircraft): Point {
+  const { x, y } = a.position;
+  const v = a.velocityDir;
+  const tx = x < 0 ? -x / v.x : x > WORLD_WIDTH ? (WORLD_WIDTH - x) / v.x : 0;
+  const ty = y < 0 ? -y / v.y : y > WORLD_HEIGHT ? (WORLD_HEIGHT - y) / v.y : 0;
+  const t = Math.max(tx, ty);
+  return { x: x + v.x * t, y: y + v.y * t };
+}
+
+export function drawEntryCues(ctx: CanvasRenderingContext2D, aircraft: readonly Aircraft[], clock: number): void {
+  const pulse = 1 - CUE_PULSE_DEPTH * (0.5 + 0.5 * Math.sin(clock / CUE_PULSE_MS));
+  ctx.save();
+  ctx.fillStyle = CUE_COLOR;
+  ctx.strokeStyle = hex(INK);
+  ctx.lineWidth = 1;
+  ctx.lineJoin = 'round';
+  for (const a of aircraft) {
+    if (!a.flags.entering || a.flags.crashed) continue;
+    const fade = Math.max(0, Math.min(1, 1 - edgeInset(a) / a.radius));
+    const edge = entryPoint(a);
+    const reach = CUE_SIZE + CUE_INSET;
+    if (fade === 0 || !Number.isFinite(edge.x) || !Number.isFinite(edge.y)) continue;
+    ctx.globalAlpha = fade * pulse;
+    drawArrowhead(ctx, { x: edge.x + a.velocityDir.x * reach, y: edge.y + a.velocityDir.y * reach }, a.heading, CUE_SIZE);
+    ctx.stroke();
+  }
+  ctx.restore();
 }

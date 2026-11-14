@@ -5,7 +5,7 @@ import { clipWorld } from '../config/world';
 import { createGame, drainEvents, updateGame, type Game } from '../game/game';
 import { CAMEO_CHANCE } from '../game/spawn';
 import { createDragController, pointerDown, pointerMove, pointerUp, resetInput } from '../input/drag';
-import { drawAircraft } from '../render/aircraft';
+import { drawAircraft, drawEntryCues } from '../render/aircraft';
 import { drawClouds } from '../render/clouds';
 import { drawCrashFx, drawWarningRings } from '../render/collision';
 import { drawGameOver, drawMapDebug, drawSpawnDebug } from '../render/debug';
@@ -79,6 +79,7 @@ export function createDebugMode(storage: Storage, seed: number, audio: Audio): M
       drawCrashFx(ctx, game.crashes, game.clock);
       ctx.restore();
       if (save.prefs.clouds && game.world.map.clouds !== false) drawClouds(ctx, game.world, game.clock);
+      drawEntryCues(ctx, game.aircraft, game.clock);
       drawSpawnDebug(ctx, game);
       drawGameOver(ctx, game);
     },
