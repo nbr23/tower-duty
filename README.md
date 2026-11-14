@@ -1,8 +1,14 @@
+<p align="center">
+  <img src="public/favicon.svg" width="96" height="96" alt="Tower Duty logo">
+</p>
+
 # Tower Duty
 
 A browser-based air traffic control game. Draw flight paths, guide aircraft to land,
 and keep the skies safe. Built with TypeScript, Vite, and Canvas 2D, with offline
 support as an installable progressive web app.
+
+![Aircraft following drawn flight paths to the runway on the Coast map](docs/screenshot.png)
 
 ## Development
 

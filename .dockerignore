@@ -4,6 +4,7 @@ dev-dist
 .git
 *.local
 *.md
+docs
 Dockerfile
 docker-compose.yml
 .dockerignore
