@@ -119,7 +119,8 @@ export function layoutIssues(world: World): string[] {
   for (let i = 0; i < shapes.length; i++) {
     const a = shapes[i]!;
     const edge = Math.min(...a.points.map((p) => Math.min(p.x, p.y, WORLD_WIDTH - p.x, WORLD_HEIGHT - p.y)));
-    if (edge < MIN_EDGE) issues.push(`${a.f.id} is ${edge.toFixed(0)} from the edge (min ${MIN_EDGE})`);
+    const leavesWorld = a.f.runway !== undefined && world.runways[a.f.runway]!.flythrough;
+    if (edge < MIN_EDGE && !leavesWorld) issues.push(`${a.f.id} is ${edge.toFixed(0)} from the edge (min ${MIN_EDGE})`);
     for (let j = i + 1; j < shapes.length; j++) {
       const b = shapes[j]!;
       if (related(a.f, b.f)) continue;

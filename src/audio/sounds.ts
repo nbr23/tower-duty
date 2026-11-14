@@ -11,6 +11,7 @@ export const VOLUMES: Record<SoundName, number> = {
   fastplanewarn: 0.2,
   zeppelin_arriving: 1.0,
   ufo_arriving: 0.7,
+  tanker_inbound: 0.6,
   menu: 1.0,
   menu_option: 1.0,
 };

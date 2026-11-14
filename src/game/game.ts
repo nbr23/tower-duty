@@ -165,6 +165,10 @@ function land(game: Game, a: Aircraft, zone: LandingZone): void {
 
 function arrive(game: Game, a: Aircraft): void {
   const zone = a.target;
+  if (zone?.kind === 'runway' && zone.flythrough) {
+    a.despawnAt = game.clock;
+    return;
+  }
   if (zone?.kind === 'runway' && a.behaviour === 'landing') {
     const taxi = chooseTaxi(game.rng, game.taxi, game.score, zone);
     if (taxi !== null) {

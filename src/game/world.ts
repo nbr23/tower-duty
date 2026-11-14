@@ -12,6 +12,7 @@ export interface RunwayZone {
   heading: number;
   length: number;
   taxiPaths: Polyline[];
+  flythrough: boolean;
   filter: TypeFilter;
 }
 
@@ -43,6 +44,7 @@ export function buildWorld(map: MapDef): World {
       heading: headingDeg(start, end),
       length: distance(start, end),
       taxiPaths: r.taxiPaths.map(pointsFromFlat),
+      flythrough: r.flythrough ?? false,
       filter: new Set(r.strips),
     };
   });

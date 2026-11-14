@@ -18,8 +18,8 @@ describe('Hub', () => {
   });
 
   it('keeps existing selections and uses Coast pacing and ranks', () => {
-    expect(MAP_SELECTOR.at(-1)).toBe(HUB);
-    expect(MAP_SELECTOR.slice(0, -1).map((map) => map.id)).toEqual([
+    expect(MAP_SELECTOR[11]).toBe(HUB);
+    expect(MAP_SELECTOR.slice(0, 11).map((map) => map.id)).toEqual([
       'meadow', 'fleet', 'lakeside', 'airshow', 'canyon', 'coast',
       'arctic-outpost', 'volcano-island', 'city-lights', 'moon-base', 'altiport',
     ]);

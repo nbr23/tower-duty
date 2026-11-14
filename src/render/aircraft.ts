@@ -995,6 +995,36 @@ const ALPINE: Record<string, readonly Sprite[]> = {
   'rescue heli': [CIVIL_HELI],
 };
 
+const BUCKET = ellipse(-0.1, 0, 0.1, 0.1, 10);
+
+const FIRE: Record<string, readonly Sprite[]> = {
+  'water scooper': [
+    FLYING_BOAT,
+    { ...FLYING_BOAT, details: [...(FLYING_BOAT.details ?? []), rect(-0.3, -0.14, -0.16, 0.14), TAIL_STRIPE] },
+  ],
+  'heavy tanker': [{ ...CARGO_JET_BASE, details: [...(CARGO_JET_BASE.details ?? []), rect(-0.4, -0.09, 0.35, 0.09)] }],
+  'spotter plane': CIVIL.small!,
+  'bucket heli': CIVIL.heli!.map((heli) => ({ ...heli, details: [...(heli.details ?? []), BUCKET] })),
+  'lead plane': [
+    {
+      body: [
+        mirrored([
+          [1, 0],
+          [0.9, 0.11],
+          [0.55, 0.14],
+          [-0.6, 0.12],
+          [-0.92, 0.06],
+          [-1, 0],
+        ]),
+        wing(0.06, 0.3, 0.92),
+        wing(-1, -0.82, 0.4),
+      ],
+      details: [ellipse(0.7, 0, 0.12, 0.07), ...pods(0.2, [0.4]), TAIL_STRIPE],
+      rotors: [0.4, -0.4].map((y) => ({ x: 0.46, y, r: 0.22, blades: 3 })),
+    },
+  ],
+};
+
 const CAMEO: Record<string, readonly Sprite[]> = {
   concorde: [CONCORDE],
   blackbird: [BLACKBIRD],
@@ -1013,6 +1043,7 @@ const FAMILIES: Record<string, Record<string, readonly Sprite[]>> = {
   'city-lights': NIGHT,
   'moon-base': LUNAR,
   'hub': HUB,
+  'fire-season': FIRE,
 };
 
 export function spriteFor(map: MapDef, name: string, variant: number): Sprite {

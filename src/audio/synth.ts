@@ -183,6 +183,22 @@ const CLIPS: Record<SoundName, { length: number; render: (out: Samples, sr: numb
       lowpass(out, sr, 3000);
     },
   },
+  tanker_inbound: {
+    length: 1.3,
+    render(out, sr) {
+      const blasts: readonly [at: number, dur: number, freq: number, to: number][] = [
+        [0, 0.5, 330, 392],
+        [0.55, 0.75, 392, 494],
+      ];
+      for (const [at, dur, freq, to] of blasts) {
+        const horn = { at, dur, freq, to, attack: 0.05, release: 0.18, vibrato: [6, 0.006] as const };
+        tone(out, sr, { ...horn, wave: saw, gain: 0.5 });
+        tone(out, sr, { ...horn, wave: soft, gain: 0.6 });
+        tone(out, sr, { ...horn, freq: freq * 1.5, to: to * 1.5, gain: 0.25 });
+      }
+      lowpass(out, sr, 2400);
+    },
+  },
   menu: {
     length: 0.75,
     render(out, sr) {

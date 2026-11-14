@@ -28,6 +28,7 @@ export interface Runway {
   y2: number;
   strips: number[];
   taxiPaths: number[][];
+  flythrough?: boolean;
 }
 
 export type PadMark = 'helipad' | 'target';
@@ -39,9 +40,15 @@ export interface Helipad {
   mark?: PadMark;
 }
 
-export type SpecialEvent = 'zeppelin_arriving' | 'fastplanewarn' | 'ufo_arriving';
+export type SpecialEvent = 'zeppelin_arriving' | 'fastplanewarn' | 'ufo_arriving' | 'tanker_inbound';
 
-export type Weather = 'snow' | 'ash';
+export type Weather = 'snow' | 'ash' | 'smoke';
+
+export interface Plume {
+  x: number;
+  y: number;
+  heading: number;
+}
 
 export interface SpecialDef {
   stripIndex: number;
@@ -68,6 +75,7 @@ export interface MapDef {
   worldScale?: number;
   clouds?: boolean;
   weather?: Weather;
+  plume?: Plume;
   parkedWarningMargin?: number;
 }
 
@@ -808,6 +816,33 @@ export const HUB: MapDef = {
   parkedWarningMargin: 16,
 };
 
+export const FIRE_SEASON: MapDef = {
+  id: 'fire-season',
+  title: 'Fire Season',
+  background: 'fire-season',
+  ...MEADOW_LEVELS,
+  colors: [0x4fb3e8, 0xf2683c, 0xf4d03f],
+  strips: [
+    { name: 'water scooper', weight: 3, type: 0, speed: 1.4, radius: 16, color: 0, variants: 2 },
+    { name: 'heavy tanker', weight: 1.5, type: 2, speed: 2.2, radius: 24, color: 1 },
+    { name: 'spotter plane', weight: 1.5, type: 1, speed: 1.0, radius: 11, color: 1 },
+    { name: 'bucket heli', weight: 4, type: 0, speed: 0.85, radius: 11, color: 2, variants: 3 },
+    { name: 'lead plane', weight: 2, type: 3, speed: 4.0, radius: 13, color: 1, special: true },
+  ],
+  runways: [
+    { x1: 330, y1: 285, x2: 130, y2: 380, strips: [1, 2, 4], taxiPaths: [] },
+    { x1: 510, y1: 290, x2: 1039, y2: 613, strips: [0], taxiPaths: [], flythrough: true },
+  ],
+  helipads: [
+    { x: 620, y: 120, strips: [3] },
+    { x: 735, y: 215, strips: [3] },
+  ],
+  landedHoldMs: 1000,
+  special: { stripIndex: 4, recurRandom: 2, recurBase: 4, event: 'tanker_inbound' },
+  weather: 'smoke',
+  plume: { x: 790, y: 60, heading: 140 },
+};
+
 export const MAP_SELECTOR: MapDef[] = [
   MEADOW,
   FLEET,
@@ -821,4 +856,5 @@ export const MAP_SELECTOR: MapDef[] = [
   MOON_BASE,
   ALTIPORT,
   HUB,
+  FIRE_SEASON,
 ];
