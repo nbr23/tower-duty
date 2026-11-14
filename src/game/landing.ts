@@ -1,6 +1,6 @@
 import type { MapDef } from '../config/maps';
 import { directionFromHeading, type Aircraft } from './aircraft';
-import { angleDiff, distance, headingDeg, type Polyline } from './geometry';
+import { angleDiff, distance, headingDeg, type Point, type Polyline } from './geometry';
 import { randomInt, type Rng } from './rng';
 import { accepts, runwayFrame, type HelipadZone, type LandingZone, type RunwayZone, type World } from './world';
 
@@ -12,6 +12,7 @@ export const RUNWAY_FADE_MS = 500;
 export const TAXI_SCORE_LIMIT = 100;
 export const TAXI_CHANCE = 0.1;
 export const TOUCHDOWN_MS = 1200;
+export const ROLLOUT_SPEED_FACTOR = 0.5;
 
 export function inRunwayCapture(zone: RunwayZone, a: Aircraft): boolean {
   const { along, lateral } = runwayFrame(zone, a.position);
@@ -56,6 +57,18 @@ export function chooseTaxi(rng: Rng, enabled: boolean, score: number, runway: Ru
   if (score >= TAXI_SCORE_LIMIT && rng() >= TAXI_CHANCE) return null;
   const path = runway.taxiPaths[randomInt(rng, runway.taxiPaths.length)]!;
   return path.map((p) => ({ ...p }));
+}
+
+export function beginRollout(a: Aircraft, stop: Point): void {
+  const remaining = distance(a.position, stop);
+  if (remaining > 0) a.rollout = { speed: a.speed, distance: remaining };
+}
+
+export function decelerate(a: Aircraft): void {
+  const stop = a.path.at(-1);
+  if (a.rollout === undefined || stop === undefined) return;
+  const left = Math.min(1, distance(a.position, stop) / a.rollout.distance);
+  a.speed = a.rollout.speed * (ROLLOUT_SPEED_FACTOR + (1 - ROLLOUT_SPEED_FACTOR) * left);
 }
 
 export function smoothstep(t: number): number {

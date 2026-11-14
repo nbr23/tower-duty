@@ -10,6 +10,11 @@ export interface PathPoint extends Point {
   drawnAt?: number;
 }
 
+export interface Rollout {
+  speed: number;
+  distance: number;
+}
+
 export type AircraftBehaviour = 'flying' | 'landing' | 'taxiing' | 'parked';
 
 export interface AircraftFlags {
@@ -39,6 +44,7 @@ export interface Aircraft {
   behaviour: AircraftBehaviour;
   flags: AircraftFlags;
   landedAt?: number;
+  rollout?: Rollout;
   fadeAt?: number;
   despawnAt?: number;
 }

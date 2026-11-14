@@ -1,7 +1,7 @@
 import type { MapDef } from '../config/maps';
 import { isAirborne, type Aircraft } from './aircraft';
 import { detectCollisions, graceMs, WARNING_THROTTLE_MS } from './collision';
-import { chooseTaxi, findCapture, HELIPAD_FADE_MS, RUNWAY_FADE_MS, steerZeppelin } from './landing';
+import { beginRollout, chooseTaxi, decelerate, findCapture, HELIPAD_FADE_MS, RUNWAY_FADE_MS, steerZeppelin } from './landing';
 import { lerpPoint, type Point } from './geometry';
 import { advance, bounceOffEdges, followPath, recordTrail } from './movement';
 import { mulberry32, type Rng } from './rng';
@@ -95,6 +95,7 @@ export function updateGame(game: Game, dt: number): void {
     if (a.flags.crashed) continue;
     if (a.behaviour === 'flying') fly(game, a, scaled);
     else if (a.behaviour !== 'parked') {
+      if (a.behaviour === 'landing') decelerate(a);
       followPath(a, scaled);
       if (a.path.length === 0) arrive(game, a);
     }
@@ -156,8 +157,10 @@ function land(game: Game, a: Aircraft, zone: LandingZone): void {
   emit(game, 'landed');
   if (zone.kind === 'runway') {
     a.path = [{ ...zone.end }];
+    if (!zone.flythrough) beginRollout(a, zone.end);
   } else {
     a.path = [{ ...zone.center }];
+    beginRollout(a, zone.center);
     a.fadeAt = game.clock;
     a.despawnAt = game.clock + HELIPAD_FADE_MS;
   }
