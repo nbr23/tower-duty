@@ -1,6 +1,7 @@
 import type { MapDef } from '../config/maps';
 import { fullyInside, isAirborne, type Aircraft } from './aircraft';
 import { detectCollisions, graceMs, WARNING_THROTTLE_MS } from './collision';
+import { createFlocks, flockHits, tickFlocks, type FlockState } from './flocks';
 import { beginRollout, chooseTaxi, decelerate, findCapture, HELIPAD_FADE_MS, RUNWAY_FADE_MS, steerZeppelin } from './landing';
 import { lerpPoint, type Point } from './geometry';
 import { advance, bounceOffEdges, followPath, recordTrail } from './movement';
@@ -12,7 +13,14 @@ export const FAST_FORWARD_SCALE = 2;
 const LANDING_SEED_SALT = 0x9e3779b9;
 const CAMEO_SEED_SALT = 0x85ebca6b;
 
-export type GameEventName = SpawnEvent | 'plane' | 'runway' | 'landed' | 'proximity_warning' | 'crashland';
+export type GameEventName =
+  | SpawnEvent
+  | 'plane'
+  | 'runway'
+  | 'landed'
+  | 'proximity_warning'
+  | 'crashland'
+  | 'flock_inbound';
 
 export interface GameEvent {
   name: GameEventName;
@@ -28,6 +36,7 @@ export interface Game {
   world: World;
   director: SpawnDirector;
   aircraft: Aircraft[];
+  flocks: FlockState;
   clock: number;
   fastForward: boolean;
   seed: number;
@@ -61,6 +70,7 @@ export function createGame(
     world: buildWorld(map),
     director: createDirector(map, mulberry32(seed), personalBest, mulberry32(seed ^ CAMEO_SEED_SALT)),
     aircraft: [],
+    flocks: createFlocks(map, seed),
     clock: 0,
     fastForward,
     seed,
@@ -104,6 +114,8 @@ export function updateGame(game: Game, dt: number): void {
   }
 
   game.aircraft = game.aircraft.filter((a) => a.despawnAt === undefined || game.clock < a.despawnAt);
+  const spawning = game.crashedAt === undefined;
+  if (tickFlocks(game.flocks, game.clock, scaled, game.director.level, game.aircraft, spawning)) emit(game, 'flock_inbound');
   game.maxInAir = Math.max(game.maxInAir, game.aircraft.filter(isAirborne).length);
   collide(game);
   if (game.gameOverAt !== undefined && game.clock >= game.gameOverAt) game.gameOver = true;
@@ -111,21 +123,33 @@ export function updateGame(game: Game, dt: number): void {
 
 function collide(game: Game): void {
   const { danger, crashes } = detectCollisions(game.world.map, game.aircraft);
-  for (const a of game.aircraft) a.flags.danger = danger.has(a);
-  if (danger.size > 0 && game.clock - game.lastWarningAt >= WARNING_THROTTLE_MS) {
+  const hits = flockHits(game.world.map, game.aircraft, game.flocks.list);
+  for (const a of game.aircraft) a.flags.danger = danger.has(a) || hits.danger.has(a);
+  for (const f of game.flocks.list) f.danger = hits.alarmed.has(f);
+  if ((danger.size > 0 || hits.danger.size > 0) && game.clock - game.lastWarningAt >= WARNING_THROTTLE_MS) {
     game.lastWarningAt = game.clock;
     emit(game, 'proximity_warning');
   }
   for (const [a, b] of crashes) {
     crash(a);
     crash(b);
-    game.crashes.push({ at: lerpPoint(a.position, b.position, 0.5), time: game.clock });
-    emit(game, 'crashland');
+    recordCrash(game, lerpPoint(a.position, b.position, 0.5));
   }
-  if (crashes.length > 0 && game.crashedAt === undefined) {
-    game.crashedAt = game.clock;
-    game.gameOverAt = game.clock + graceMs(game.score, game.personalBest);
+  for (const [a, f] of hits.strikes) {
+    if (a.flags.crashed) continue;
+    crash(a);
+    f.struckAt = game.clock;
+    f.danger = false;
+    recordCrash(game, lerpPoint(a.position, f.position, 0.5));
   }
+}
+
+function recordCrash(game: Game, at: Point): void {
+  game.crashes.push({ at, time: game.clock });
+  emit(game, 'crashland');
+  if (game.crashedAt !== undefined) return;
+  game.crashedAt = game.clock;
+  game.gameOverAt = game.clock + graceMs(game.score, game.personalBest);
 }
 
 function crash(a: Aircraft): void {

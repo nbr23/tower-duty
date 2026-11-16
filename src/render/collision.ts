@@ -1,4 +1,5 @@
 import type { Aircraft } from '../game/aircraft';
+import type { Flock } from '../game/flocks';
 import type { Crash } from '../game/game';
 import { mulberry32 } from '../game/rng';
 
@@ -21,16 +22,21 @@ const CORE_STEPS: readonly (readonly [number, string])[] = [
   [0.34, '#ffffff'],
 ];
 
-export function drawWarningRings(ctx: CanvasRenderingContext2D, aircraft: readonly Aircraft[], clock: number): void {
+export function drawWarningRings(
+  ctx: CanvasRenderingContext2D,
+  aircraft: readonly Aircraft[],
+  clock: number,
+  flocks: readonly Flock[] = [],
+): void {
   if (Math.floor(clock / RING_FLASH_MS) % 2 === 1) return;
   ctx.save();
   ctx.strokeStyle = RING_COLOR;
   ctx.fillStyle = RING_FILL;
   ctx.lineWidth = RING_WIDTH;
-  for (const a of aircraft) {
-    if (!a.flags.danger) continue;
+  const rings = [...aircraft.filter((a) => a.flags.danger), ...flocks.filter((f) => f.danger)];
+  for (const { position, radius } of rings) {
     ctx.beginPath();
-    ctx.arc(a.position.x, a.position.y, a.radius + RING_PAD, 0, Math.PI * 2);
+    ctx.arc(position.x, position.y, radius + RING_PAD, 0, Math.PI * 2);
     ctx.fill();
     ctx.stroke();
   }

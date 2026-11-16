@@ -10,8 +10,8 @@ export const RECENT_SLOT_MEMORY = 2;
 export const SPAWN_OFFSET = WORLD_HEIGHT / 8;
 export const CAMEO_CHANCE = 1 / 40;
 const BEGINNER_BEST = 100;
-const PERIMETER = 2 * (WORLD_WIDTH + WORLD_HEIGHT);
-const CENTER: Point = { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 };
+export const PERIMETER = 2 * (WORLD_WIDTH + WORLD_HEIGHT);
+export const CENTER: Point = { x: WORLD_WIDTH / 2, y: WORLD_HEIGHT / 2 };
 
 export type SpawnEvent = SpecialEvent;
 

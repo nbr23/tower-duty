@@ -43,12 +43,21 @@ export interface Helipad {
 
 export type SpecialEvent = 'zeppelin_arriving' | 'fastplanewarn' | 'ufo_arriving' | 'tanker_inbound';
 
-export type Weather = 'snow' | 'ash' | 'smoke';
+export type Weather = 'snow' | 'ash' | 'smoke' | 'mist';
 
 export interface Plume {
   x: number;
   y: number;
   heading: number;
+}
+
+export interface FlockDef {
+  fromLevel: number;
+  gap: readonly [min: number, max: number];
+  maxActive: number;
+  speed: number;
+  radius: number;
+  birds: number;
 }
 
 export interface SpecialDef {
@@ -77,6 +86,7 @@ export interface MapDef {
   clouds?: boolean;
   weather?: Weather;
   plume?: Plume;
+  flocks?: FlockDef;
   parkedWarningMargin?: number;
   spawnSlots?: number[];
 }
@@ -874,6 +884,50 @@ export const HANGAR_BAY: MapDef = {
   spawnSlots: [0, 1, 2, 5, 6, 7],
 };
 
+export const LOST_VALLEY: MapDef = {
+  id: 'lost-valley',
+  title: 'Lost Valley',
+  background: 'lost-valley',
+  ...AIRSHOW_LEVELS,
+  colors: [0xf2873a, 0x4fc3e8, 0xf4d03f, 0xefe6c8],
+  strips: [
+    { name: 'bush plane', weight: 2, type: 0, speed: 1.05, radius: 12, color: 0 },
+    { name: 'floatplane', weight: 2, type: 0, speed: 1.2, radius: 15, color: 1, variants: 2 },
+    { name: 'cargo transport', weight: 1.5, type: 2, speed: 1.7, radius: 20, color: 0 },
+    { name: 'heli', weight: 2, type: 1, speed: 0.85, radius: 11, color: 2 },
+    {
+      name: 'expedition airship',
+      weight: 2,
+      type: 3,
+      speed: 0.3,
+      radius: 56,
+      color: 3,
+      turnRate: 0.2,
+      special: true,
+      parkSlots: [
+        { cx: 0, cy: 0, r: 17 },
+        { cx: 30, cy: 0, r: 15 },
+        { cx: -30, cy: 0, r: 15 },
+        { cx: 48, cy: 0, r: 8 },
+        { cx: -50, cy: 0, r: 10 },
+      ],
+    },
+  ],
+  runways: [
+    { x1: 560, y1: 420, x2: 770, y2: 360, strips: [0, 2], taxiPaths: [] },
+    { x1: 430, y1: 150, x2: 300, y2: 250, strips: [1], taxiPaths: [] },
+  ],
+  helipads: [
+    { x: 390, y: 395, strips: [3] },
+    { x: 700, y: 190, strips: [4] },
+  ],
+  landedHoldMs: 1000,
+  special: { stripIndex: 4, recurRandom: 2, recurBase: 5, event: 'zeppelin_arriving' },
+  weather: 'mist',
+  plume: { x: 112, y: 348, heading: 345 },
+  flocks: { fromLevel: 1, gap: [32000, 52000], maxActive: 2, speed: 1.1, radius: 20, birds: 7 },
+};
+
 export const MAP_SELECTOR: MapDef[] = [
   MEADOW,
   FLEET,
@@ -889,4 +943,5 @@ export const MAP_SELECTOR: MapDef[] = [
   HUB,
   FIRE_SEASON,
   HANGAR_BAY,
+  LOST_VALLEY,
 ];

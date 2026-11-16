@@ -1154,6 +1154,31 @@ const HANGAR: Record<string, readonly Sprite[]> = {
   }],
 };
 
+const ZEPPELIN = VINTAGE.zeppelin![0]!;
+
+const JUNGLE: Record<string, readonly Sprite[]> = {
+  'bush plane': [
+    {
+      ...SKI_PLANE,
+      details: [ellipse(0.52, 0, 0.1, 0.08), ellipse(0.62, 0.21, 0.08, 0.06), ellipse(0.62, -0.21, 0.08, 0.06)],
+    },
+  ],
+  floatplane: [floatplane(1), floatplane(0.9, [TAIL_STRIPE])],
+  'cargo transport': [{ ...TURBOPROP, details: [...(TURBOPROP.details ?? []), rect(-0.75, -0.08, -0.45, 0.08)] }],
+  heli: [CIVIL_HELI],
+  'expedition airship': [
+    {
+      ...ZEPPELIN,
+      details: [
+        ...(ZEPPELIN.details ?? []),
+        rect(-0.15, -0.07, 0.35, 0.07),
+        rect(-0.42, -0.05, -0.24, 0.05),
+        rect(0.45, -0.04, 0.6, 0.04),
+      ],
+    },
+  ],
+};
+
 const CAMEO: Record<string, readonly Sprite[]> = {
   concorde: [CONCORDE],
   blackbird: [BLACKBIRD],
@@ -1174,6 +1199,7 @@ const FAMILIES: Record<string, Record<string, readonly Sprite[]>> = {
   'hub': HUB,
   'fire-season': FIRE,
   'hangar-bay': HANGAR,
+  'lost-valley': JUNGLE,
 };
 
 export function spriteFor(map: MapDef, name: string, variant: number): Sprite {
@@ -1291,7 +1317,9 @@ function lerp(from: number, to: number, t: number): number {
   return from + (to - from) * t;
 }
 
-function edgeInset(a: Aircraft): number {
+export type Mover = Pick<Aircraft, 'position' | 'velocityDir' | 'heading' | 'radius'>;
+
+function edgeInset(a: Mover): number {
   const { x, y } = a.position;
   return Math.min(x, WORLD_WIDTH - x, y, WORLD_HEIGHT - y);
 }
@@ -1374,7 +1402,7 @@ export function drawAircraft(
   for (const a of [...landed, ...flying]) drawOne(ctx, world, a, clock);
 }
 
-function entryPoint(a: Aircraft): Point {
+function entryPoint(a: Mover): Point {
   const { x, y } = a.position;
   const v = a.velocityDir;
   const tx = x < 0 ? -x / v.x : x > WORLD_WIDTH ? (WORLD_WIDTH - x) / v.x : 0;
@@ -1384,14 +1412,17 @@ function entryPoint(a: Aircraft): Point {
 }
 
 export function drawEntryCues(ctx: CanvasRenderingContext2D, aircraft: readonly Aircraft[], clock: number): void {
+  drawCues(ctx, aircraft.filter((a) => a.flags.entering && !a.flags.crashed), clock, CUE_COLOR);
+}
+
+export function drawCues(ctx: CanvasRenderingContext2D, movers: readonly Mover[], clock: number, color: string): void {
   const pulse = 1 - CUE_PULSE_DEPTH * (0.5 + 0.5 * Math.sin(clock / CUE_PULSE_MS));
   ctx.save();
-  ctx.fillStyle = CUE_COLOR;
+  ctx.fillStyle = color;
   ctx.strokeStyle = hex(INK);
   ctx.lineWidth = 1;
   ctx.lineJoin = 'round';
-  for (const a of aircraft) {
-    if (!a.flags.entering || a.flags.crashed) continue;
+  for (const a of movers) {
     const fade = Math.max(0, Math.min(1, 1 - edgeInset(a) / a.radius));
     const edge = entryPoint(a);
     const reach = CUE_SIZE + CUE_INSET;

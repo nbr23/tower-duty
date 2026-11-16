@@ -13,6 +13,7 @@ import { moonBase } from './moon-base';
 import { hub } from './hub';
 import { fireSeason } from './fire-season';
 import { hangarBay } from './hangar-bay';
+import { lostValley } from './lost-valley';
 import type { Painter } from './shared';
 
 export type { Painter } from './shared';
@@ -32,6 +33,7 @@ export const PAINTERS: Record<string, Painter> = {
   'hub': hub,
   'fire-season': fireSeason,
   'hangar-bay': hangarBay,
+  'lost-valley': lostValley,
 };
 
 export function paintPlain(g: Ctx): void {

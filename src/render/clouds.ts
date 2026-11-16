@@ -11,8 +11,19 @@ const PUFF_SHAPES = 3;
 const DRIFT = { x: 1, y: 0.12 };
 const CLOUD_RGB = '255, 255, 255';
 const ASH_RGB = '74, 66, 62';
-const SMOKE_RGB = '96, 90, 86';
-const SMOKE = { count: 18, reach: 520, speed: 9, spread: 150, alpha: 0.5 };
+
+interface PlumeSpec {
+  key: string;
+  rgb: string;
+  count: number;
+  reach: number;
+  speed: number;
+  spread: number;
+  alpha: number;
+}
+
+const SMOKE: PlumeSpec = { key: 'smoke', rgb: '96, 90, 86', count: 18, reach: 520, speed: 9, spread: 150, alpha: 0.5 };
+const MIST: PlumeSpec = { key: 'mist', rgb: '236, 244, 242', count: 22, reach: 620, speed: 6, spread: 260, alpha: 0.32 };
 const SHADOW_RGB = '17, 21, 26';
 const SHADOW_OFFSET = { x: 10, y: 14 };
 const SHADOW_ALPHA = 0.3;
@@ -206,36 +217,37 @@ function drawPuffs(ctx: CanvasRenderingContext2D, key: string, clock: number, rg
   ctx.restore();
 }
 
-function wispsFor(key: string): Wisp[] {
-  let list = wisps.get(key);
+function wispsFor(key: string, spec: PlumeSpec): Wisp[] {
+  const id = `${spec.key}:${key}`;
+  let list = wisps.get(id);
   if (list === undefined) {
-    const rng = mulberry32(seedFor(`smoke:${key}`));
-    list = Array.from({ length: SMOKE.count }, (_, i) => ({
-      phase: (i + rng()) / SMOKE.count,
+    const rng = mulberry32(seedFor(id));
+    list = Array.from({ length: spec.count }, (_, i) => ({
+      phase: (i + rng()) / spec.count,
       side: rng() * 2 - 1,
       shape: Math.floor(rng() * PUFF_SHAPES),
       scale: 0.8 + rng() * 0.4,
     }));
-    wisps.set(key, list);
+    wisps.set(id, list);
   }
   return list;
 }
 
-function drawSmoke(ctx: CanvasRenderingContext2D, key: string, plume: Plume, clock: number): void {
-  const sprites = puffSprites(SMOKE_RGB);
+function drawPlume(ctx: CanvasRenderingContext2D, key: string, plume: Plume, clock: number, spec: PlumeSpec): void {
+  const sprites = puffSprites(spec.rgb);
   const heading = (plume.heading * Math.PI) / 180;
   const dx = Math.cos(heading);
   const dy = Math.sin(heading);
-  const travel = ((clock / 1000) * SMOKE.speed) / SMOKE.reach;
+  const travel = ((clock / 1000) * spec.speed) / spec.reach;
   ctx.save();
-  for (const wisp of wispsFor(key)) {
+  for (const wisp of wispsFor(key, spec)) {
     const age = wrap(travel + wisp.phase, 1);
-    const along = age * SMOKE.reach;
-    const across = wisp.side * age * SMOKE.spread;
+    const along = age * spec.reach;
+    const across = wisp.side * age * spec.spread;
     const scale = wisp.scale * (0.4 + age * 1.4);
     const w = SPRITE_W * scale;
     const h = SPRITE_H * scale;
-    ctx.globalAlpha = SMOKE.alpha * Math.min(1, age * 8) * (1 - age);
+    ctx.globalAlpha = spec.alpha * Math.min(1, age * 8) * (1 - age);
     ctx.drawImage(sprites[wisp.shape]!, plume.x + dx * along - dy * across - w / 2, plume.y + dy * along + dx * across - h / 2, w, h);
   }
   ctx.restore();
@@ -244,6 +256,7 @@ function drawSmoke(ctx: CanvasRenderingContext2D, key: string, plume: Plume, clo
 export function drawClouds(ctx: CanvasRenderingContext2D, world: World, clock: number): void {
   const { background, weather, plume } = world.map;
   if (weather === 'snow') drawSnow(ctx, background, clock);
-  else if (weather === 'smoke' && plume !== undefined) drawSmoke(ctx, background, plume, clock);
+  else if (weather === 'smoke' && plume !== undefined) drawPlume(ctx, background, plume, clock, SMOKE);
+  else if (weather === 'mist' && plume !== undefined) drawPlume(ctx, background, plume, clock, MIST);
   else drawPuffs(ctx, background, clock, weather === 'ash' ? ASH_RGB : CLOUD_RGB);
 }

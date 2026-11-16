@@ -2,6 +2,7 @@ import { clipWorld } from '../../config/world';
 import { drawAircraft, drawEntryCues } from '../../render/aircraft';
 import { drawClouds } from '../../render/clouds';
 import { drawCrashFx, drawWarningRings } from '../../render/collision';
+import { drawFlockCues, drawFlocks } from '../../render/flocks';
 import { drawMap, drawSurround } from '../../render/map';
 import { drawHighlights, drawPaths } from '../../render/path';
 import { pauseGame, type App, type Session } from '../app';
@@ -17,13 +18,15 @@ export function drawPlayFrame(ctx: CanvasRenderingContext2D, app: App, session: 
   ctx.save();
   clipWorld(ctx);
   if (app.save.prefs.highlights) drawHighlights(ctx, game.aircraft);
-  drawWarningRings(ctx, game.aircraft, game.clock);
+  drawWarningRings(ctx, game.aircraft, game.clock, game.flocks.list);
   drawPaths(ctx, game.world, game.aircraft, game.clock);
   ctx.restore();
   drawAircraft(ctx, game.world, game.aircraft, game.clock);
+  drawFlocks(ctx, game.flocks.list, game.clock);
   drawCrashFx(ctx, game.crashes, game.clock);
   if (app.save.prefs.clouds && game.world.map.clouds !== false) drawClouds(ctx, game.world, game.clock);
   drawEntryCues(ctx, game.aircraft, game.clock);
+  drawFlockCues(ctx, game.flocks.list, game.clock);
 }
 
 export const playScreen: Screen = {

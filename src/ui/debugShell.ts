@@ -8,6 +8,7 @@ import { createDragController, pointerDown, pointerMove, pointerUp, resetInput }
 import { drawAircraft, drawEntryCues } from '../render/aircraft';
 import { drawClouds } from '../render/clouds';
 import { drawCrashFx, drawWarningRings } from '../render/collision';
+import { drawFlockCues, drawFlocks } from '../render/flocks';
 import { drawGameOver, drawMapDebug, drawSpawnDebug } from '../render/debug';
 import { drawHighlights, drawPaths } from '../render/path';
 import { loadSave, mapStats } from '../state/save';
@@ -73,13 +74,15 @@ export function createDebugMode(storage: Storage, seed: number, audio: Audio): M
       ctx.save();
       clipWorld(ctx);
       drawHighlights(ctx, game.aircraft);
-      drawWarningRings(ctx, game.aircraft, game.clock);
+      drawWarningRings(ctx, game.aircraft, game.clock, game.flocks.list);
       drawPaths(ctx, game.world, game.aircraft, game.clock);
       drawAircraft(ctx, game.world, game.aircraft, game.clock);
+      drawFlocks(ctx, game.flocks.list, game.clock);
       drawCrashFx(ctx, game.crashes, game.clock);
       ctx.restore();
       if (save.prefs.clouds && game.world.map.clouds !== false) drawClouds(ctx, game.world, game.clock);
       drawEntryCues(ctx, game.aircraft, game.clock);
+      drawFlockCues(ctx, game.flocks.list, game.clock);
       drawSpawnDebug(ctx, game);
       drawGameOver(ctx, game);
     },

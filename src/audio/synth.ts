@@ -199,6 +199,24 @@ const CLIPS: Record<SoundName, { length: number; render: (out: Samples, sr: numb
       lowpass(out, sr, 2400);
     },
   },
+  flock_inbound: {
+    length: 0.7,
+    render(out, sr) {
+      const calls: readonly [at: number, freq: number, to: number][] = [
+        [0, 2600, 1700],
+        [0.14, 2900, 1900],
+        [0.32, 2400, 1500],
+      ];
+      for (const [at, freq, to] of calls) {
+        tone(out, sr, { at, dur: 0.11, freq, to, wave: triangle, attack: 0.006, release: 0.04, vibrato: [38, 0.03] });
+        tone(out, sr, { at, dur: 0.11, freq: freq * 2, to: to * 2, attack: 0.006, release: 0.04, gain: 0.15 });
+      }
+      for (let i = 0; i < 5; i++) {
+        noise(out, sr, { at: 0.05 + i * 0.12, dur: 0.06, cutoff: () => 1400, highpass: 300, gain: 0.35, attack: 0.01, release: 0.04, seed: 11 + i });
+      }
+      lowpass(out, sr, 6000);
+    },
+  },
   menu: {
     length: 0.75,
     render(out, sr) {

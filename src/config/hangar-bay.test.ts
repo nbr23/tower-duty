@@ -15,7 +15,7 @@ const world = buildWorld(HANGAR_BAY);
 
 describe('Hangar Bay', () => {
   it('integrates with map selection, scenery, and pacing', () => {
-    expect(MAP_SELECTOR.at(-1)).toBe(HANGAR_BAY);
+    expect(MAP_SELECTOR[13]).toBe(HANGAR_BAY);
     expect(PAINTERS[HANGAR_BAY.background]).toBeTypeOf('function');
     expect(HANGAR_BAY.clouds).toBe(false);
     for (const key of ['planesPerLevel', 'intervals', 'levelUpPause', 'intervalDecay', 'pauseDecay'] as const) {
