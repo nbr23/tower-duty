@@ -11,7 +11,7 @@ export function scoreShareData(map: MapDef, score: number, best: boolean, href: 
   const url = new URL(`m/${map.id}/`, base);
   return {
     title: 'Tower Duty',
-    text: `${best ? 'My high score:' : 'I landed'} ${score} aircraft${best ? ' landed' : ''} on ${map.title} in Tower Duty! Rank: ${rankName(rankFor(map.id, score))}. Can you beat it?`,
+    text: `${best ? 'My high score:' : 'I landed'} ${score} aircraft${best ? ' landed' : ''} on ${map.title} in Tower Duty! Rank: ${rankName(rankFor(score))}. Can you beat it?`,
     url: url.href,
   };
 }
@@ -26,7 +26,7 @@ export function scoreCardFile(map: MapDef, score: number, best: boolean): Promis
       const canvas = document.createElement('canvas');
       canvas.width = CARD_WIDTH;
       canvas.height = CARD_HEIGHT;
-      drawShareCard(canvas.getContext('2d')!, previewWorld(map), { score, rank: rankName(rankFor(map.id, score)), best });
+      drawShareCard(canvas.getContext('2d')!, previewWorld(map), { score, rank: rankName(rankFor(score)), best });
       canvas.toBlob((blob) => {
         resolve(blob === null ? null : new File([blob], `tower-duty-${map.id}-${score}.png`, { type: 'image/png' }));
       }, 'image/png');

@@ -1,5 +1,5 @@
 import { MAP_SELECTOR } from '../../config/maps';
-import { rankName } from '../../game/ranks';
+import { rankFor, rankName } from '../../game/ranks';
 import { mapStats } from '../../state/save';
 import { goto, type App } from '../app';
 import { formatDuration } from '../format';
@@ -19,7 +19,7 @@ function rows(app: App): HTMLTableRowElement[] {
       { class: i === app.choice ? 'current' : undefined },
       h('th', { scope: 'row' }, map.title),
       h('td', { class: 'num best' }, String(stats.highscore)),
-      h('td', {}, rankName(stats.bestRank)),
+      h('td', {}, rankName(rankFor(stats.highscore))),
       h('td', { class: 'num' }, String(stats.landed)),
       h('td', { class: 'num' }, formatDuration(stats.flightTimeMs)),
       h('td', { class: 'num' }, String(stats.maxInAir)),

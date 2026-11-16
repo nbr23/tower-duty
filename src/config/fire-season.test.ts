@@ -5,7 +5,6 @@ import { synthesize } from '../audio/synth';
 import { createAircraft } from '../game/aircraft';
 import { createGame, updateGame } from '../game/game';
 import { findCapture } from '../game/landing';
-import { rankFor } from '../game/ranks';
 import { tickSpawn } from '../game/spawn';
 import { buildWorld, type RunwayZone } from '../game/world';
 import { layoutIssues } from '../render/footprint';
@@ -25,12 +24,11 @@ function approachCrossing(a: RunwayZone, b: RunwayZone): { x: number; y: number;
 }
 
 describe('Fire Season', () => {
-  it('is selectable with Meadow pacing and ranks', () => {
+  it('is selectable with Meadow pacing', () => {
     expect(MAP_SELECTOR).toContain(FIRE_SEASON);
     for (const key of ['planesPerLevel', 'intervals', 'levelUpPause', 'intervalDecay', 'pauseDecay'] as const) {
       expect(FIRE_SEASON[key]).toEqual(MEADOW[key]);
     }
-    expect(rankFor(FIRE_SEASON.id, 179)).toBe(rankFor(MEADOW.id, 179));
   });
 
   it('has clear landing zones', () => {

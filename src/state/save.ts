@@ -1,12 +1,9 @@
-import { rankFor } from '../game/ranks';
-
 export const SAVE_KEY = 'tower-duty/v1';
 const SAVE_VERSION = 2;
 const FULLSCREEN_PREF_VERSION = 2;
 
 export interface MapStats {
   highscore: number;
-  bestRank: number;
   flightTimeMs: number;
   maxInAir: number;
   landed: number;
@@ -37,7 +34,6 @@ export interface GameResult {
 }
 
 export interface RecordOutcome {
-  rank: number;
   newHighscore: boolean;
 }
 
@@ -50,7 +46,7 @@ export const DEFAULT_PREFS: Prefs = {
   language: 'en',
 };
 
-const EMPTY_STATS: MapStats = { highscore: 0, bestRank: 0, flightTimeMs: 0, maxInAir: 0, landed: 0 };
+const EMPTY_STATS: MapStats = { highscore: 0, flightTimeMs: 0, maxInAir: 0, landed: 0 };
 
 export function defaultSave(): Save {
   return {
@@ -78,7 +74,6 @@ function parseStats(value: unknown): MapStats {
   const v = isRecord(value) ? value : {};
   return {
     highscore: num(v.highscore, 0),
-    bestRank: num(v.bestRank, 0),
     flightTimeMs: num(v.flightTimeMs, 0),
     maxInAir: num(v.maxInAir, 0),
     landed: num(v.landed, 0),
@@ -140,14 +135,12 @@ export function mapStats(save: Save, mapId: string): MapStats {
 
 export function recordGame(save: Save, mapId: string, result: GameResult): RecordOutcome {
   const prev = mapStats(save, mapId);
-  const rank = rankFor(mapId, result.score);
   save.maps[mapId] = {
     highscore: Math.max(prev.highscore, result.score),
-    bestRank: Math.max(prev.bestRank, rank),
     flightTimeMs: prev.flightTimeMs + result.flightTimeMs,
     maxInAir: Math.max(prev.maxInAir, result.maxInAir),
     landed: prev.landed + result.score,
   };
   save.landedTotal += result.score;
-  return { rank, newHighscore: result.score > prev.highscore };
+  return { newHighscore: result.score > prev.highscore };
 }

@@ -4,7 +4,6 @@ import { createAircraft } from '../game/aircraft';
 import { createGame, updateGame } from '../game/game';
 import { distance } from '../game/geometry';
 import { findCapture } from '../game/landing';
-import { rankFor } from '../game/ranks';
 import { tickSpawn } from '../game/spawn';
 import { buildWorld } from '../game/world';
 import { layoutIssues } from '../render/footprint';
@@ -17,7 +16,7 @@ describe('Hub', () => {
     expect(layoutIssues(world)).toEqual([]);
   });
 
-  it('keeps existing selections and uses Coast pacing and ranks', () => {
+  it('keeps existing selections and uses Coast pacing', () => {
     expect(MAP_SELECTOR[11]).toBe(HUB);
     expect(MAP_SELECTOR.slice(0, 11).map((map) => map.id)).toEqual([
       'meadow', 'fleet', 'lakeside', 'airshow', 'canyon', 'coast',
@@ -26,7 +25,6 @@ describe('Hub', () => {
     for (const key of ['planesPerLevel', 'intervals', 'levelUpPause', 'intervalDecay', 'pauseDecay'] as const) {
       expect(HUB[key]).toEqual(COAST[key]);
     }
-    expect(rankFor(HUB.id, 151)).toBe(rankFor(COAST.id, 151));
     expect(scoreShareData(HUB, 151, false, 'https://example.com/').url).toBe('https://example.com/m/hub/');
   });
 

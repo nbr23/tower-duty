@@ -27,7 +27,7 @@ function setText(view: HTMLElement, key: string, text: string): void {
 
 export function syncHud(view: HTMLElement, game: Game): void {
   setText(view, 'score', String(game.score));
-  setText(view, 'rank', rankName(rankFor(game.world.map.id, game.score)));
+  setText(view, 'rank', rankName(rankFor(game.score)));
   setText(view, 'best', String(Math.max(game.personalBest, game.score)));
   const crashed = game.crashedAt !== undefined;
   for (const button of view.querySelectorAll<HTMLButtonElement>('.hud-btn')) {

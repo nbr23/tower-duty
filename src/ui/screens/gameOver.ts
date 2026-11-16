@@ -1,4 +1,4 @@
-import { percentileFor, pointsToNextRank, rankFor, rankName, rankProgress } from '../../game/ranks';
+import { pointsToNextRank, rankFor, rankName, rankProgress } from '../../game/ranks';
 import { goto, mainMenu, startGame, type Session } from '../app';
 import { dim, fadeProgress, GAME_OVER_FADE_MS } from '../fade';
 import type { Screen } from '../screen';
@@ -7,21 +7,14 @@ import { button, h, screen } from '../widgets';
 import { drawPlayFrame } from './play';
 
 function rankBlock(session: Session): HTMLElement {
-  const { game } = session;
-  const mapId = game.world.map.id;
-  const rank = rankFor(mapId, game.score);
-  const percentile = percentileFor(rank);
-  const toNext = pointsToNextRank(mapId, game.score);
-  const progress = rankProgress(mapId, game.score) ?? 1;
+  const { score } = session.game;
+  const rank = rankFor(score);
+  const toNext = pointsToNextRank(score);
+  const progress = rankProgress(score) ?? 1;
   return h(
     'div',
     { class: 'rank' },
-    h(
-      'div',
-      { class: 'rank-line' },
-      h('span', { class: 'rank-name' }, rankName(rank)),
-      percentile === null ? null : h('span', { class: 'chip' }, `Top ${100 - percentile}%`),
-    ),
+    h('span', { class: 'rank-name' }, rankName(rank)),
     h(
       'div',
       { class: 'progress', role: 'progressbar', 'aria-valuemin': 0, 'aria-valuemax': 100, 'aria-valuenow': Math.round(progress * 100) },

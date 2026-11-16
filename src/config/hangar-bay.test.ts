@@ -4,7 +4,6 @@ import { WORLD_WIDTH } from './world';
 import { createAircraft } from '../game/aircraft';
 import { createGame, updateGame } from '../game/game';
 import { findCapture } from '../game/landing';
-import { thresholdsFor } from '../game/ranks';
 import { mulberry32 } from '../game/rng';
 import { createDirector, tickSpawn } from '../game/spawn';
 import { buildWorld } from '../game/world';
@@ -15,14 +14,13 @@ import { PAINTERS } from '../render/scenery';
 const world = buildWorld(HANGAR_BAY);
 
 describe('Hangar Bay', () => {
-  it('integrates with map selection, scenery, pacing, and ranks', () => {
+  it('integrates with map selection, scenery, and pacing', () => {
     expect(MAP_SELECTOR.at(-1)).toBe(HANGAR_BAY);
     expect(PAINTERS[HANGAR_BAY.background]).toBeTypeOf('function');
     expect(HANGAR_BAY.clouds).toBe(false);
     for (const key of ['planesPerLevel', 'intervals', 'levelUpPause', 'intervalDecay', 'pauseDecay'] as const) {
       expect(HANGAR_BAY[key]).toEqual(AIRSHOW[key]);
     }
-    expect(thresholdsFor(HANGAR_BAY.id)).toEqual(thresholdsFor(AIRSHOW.id));
     expect(layoutIssues(world)).toEqual([]);
     expect(world.runways).toEqual([]);
     expect(world.helipads).toHaveLength(8);

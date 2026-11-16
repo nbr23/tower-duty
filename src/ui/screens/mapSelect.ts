@@ -1,5 +1,5 @@
 import { MAP_SELECTOR, type MapDef } from '../../config/maps';
-import { rankName } from '../../game/ranks';
+import { rankFor, rankName } from '../../game/ranks';
 import { paintThumbnail } from '../../render/map';
 import { mapStats } from '../../state/save';
 import { goto, mapFor, previewWorld, startGame, type App } from '../app';
@@ -13,7 +13,7 @@ const thumbs = new Map<string, HTMLCanvasElement>();
 export function mapCard(app: App, index: number, action: string | null = null): HTMLButtonElement {
   const map = mapFor(index);
   const stats = mapStats(app.save, map.id);
-  const rank = rankName(stats.bestRank);
+  const rank = rankName(rankFor(stats.highscore));
   const picker = action === null;
   const current = picker && index === app.choice;
   return h(

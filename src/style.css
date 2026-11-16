@@ -875,27 +875,9 @@ label.setting {
   background: var(--ink);
 }
 
-.rank-line {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-}
-
 .rank-name {
   font-size: 1.1rem;
   font-weight: 750;
-}
-
-.chip {
-  padding: 0.1rem 0.45rem;
-  border-radius: 0.3rem;
-  background: var(--control);
-  color: var(--text);
-  font-size: var(--small);
-  font-weight: 700;
-  font-variant-numeric: tabular-nums;
 }
 
 .progress {
