@@ -1,6 +1,7 @@
 import type { MapDef, SpecialEvent, Strip } from '../config/maps';
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
 import { createAircraft, isAirborne, type Aircraft } from './aircraft';
+import { WARNING_MARGIN } from './collision';
 import { distance, headingDeg, type Point } from './geometry';
 import { randomInt, weightedPick, type Rng } from './rng';
 
@@ -38,6 +39,7 @@ export interface SpawnDirector {
   serial: number;
   cameoRng: Rng;
   cameoChance: number;
+  flight: Flight | null;
 }
 
 function quotaFor(map: MapDef, level: number): number {
@@ -72,6 +74,7 @@ export function createDirector(map: MapDef, rng: Rng, personalBest = 0, cameoRng
     serial: 0,
     cameoRng,
     cameoChance: CAMEO_CHANCE,
+    flight: null,
   };
   checkSpecialDue(d);
   return d;
@@ -110,13 +113,19 @@ interface Placement {
   heading: number;
 }
 
+interface Flight extends Placement {
+  stripIndex: number;
+  remaining: number;
+  delay: number;
+}
+
 function place(d: SpawnDirector, aircraft: readonly Aircraft[], offset: number): Placement {
   const live = aircraft.filter((a) => a.flags.active && !a.flags.crashed);
   let best: { slot: number; point: Point; normal: Point }[] = [];
   let bestScore = -Infinity;
   for (let slot = 0; slot < SPAWN_SLOTS; slot++) {
     const t = ((slot + d.rng()) * PERIMETER) / SPAWN_SLOTS;
-    if (d.recentSlots.includes(slot)) continue;
+    if (d.recentSlots.includes(slot) || (d.map.spawnSlots !== undefined && !d.map.spawnSlots.includes(slot))) continue;
     const { point, normal } = perimeterPoint(t);
     const score = Math.min(Infinity, ...live.map((a) => distance(point, a.position)));
     if (score > bestScore) {
@@ -156,10 +165,11 @@ function emit(
   d: SpawnDirector,
   stripIndex: number,
   aircraft: readonly Aircraft[],
+  placement?: Placement,
 ): Omit<SpawnResult, 'special'> {
   const strip = d.map.strips[stripIndex]!;
   const offset = d.serial === 0 ? strip.radius : SPAWN_OFFSET;
-  const { slot, position, heading } = place(d, aircraft, offset);
+  const { slot, position, heading } = placement ?? place(d, aircraft, offset);
   const variant = d.serial++ % (strip.variants ?? 1);
   return { aircraft: createAircraft(d.map, stripIndex, position, heading, variant), slot };
 }
@@ -172,24 +182,42 @@ export function tickSpawn(
 ): SpawnResult | null {
   if (clock < d.nextSpawnAt) return null;
 
-  if (d.holding) {
+  if (d.flight === null && d.holding) {
     const airborne = aircraft.filter(isAirborne).length;
     if (!fastForward && airborne > d.level + 2) return null;
     d.holding = false;
   }
 
-  if (d.specialPending && d.map.special !== undefined) {
+  if (d.flight === null && d.specialPending && d.map.special !== undefined) {
     const { stripIndex, event = 'fastplanewarn' } = d.map.special;
     d.specialPending = false;
     d.nextSpawnAt = clock + 2 * d.interval;
     return { ...emit(d, stripIndex, aircraft), special: true, event };
   }
 
-  const result = emit(d, pickStrip(d), aircraft);
-  const cameo = pickCameo(d, d.map.strips[result.aircraft.stripIndex]!);
+  const flight = d.flight;
+  const stripIndex = flight?.stripIndex ?? pickStrip(d);
+  const result = emit(d, stripIndex, aircraft, flight ?? undefined);
+  const strip = d.map.strips[stripIndex]!;
+  if (flight !== null) {
+    if (--flight.remaining === 0) d.flight = null;
+  } else {
+    const size = Math.min(strip.flightSize ?? 1, d.quota - d.spawnedThisLevel);
+    if (size > 1) {
+      d.flight = {
+        stripIndex,
+        remaining: size - 1,
+        slot: result.slot,
+        position: { ...result.aircraft.position },
+        heading: result.aircraft.heading,
+        delay: (2 * strip.radius + WARNING_MARGIN + 4) / result.aircraft.speed,
+      };
+    }
+  }
+  const cameo = pickCameo(d, strip);
   if (cameo !== undefined) result.aircraft.cameo = cameo;
   d.spawnedThisLevel++;
-  d.nextSpawnAt = clock + d.interval;
+  d.nextSpawnAt = clock + (d.flight?.delay ?? d.interval);
   if (d.spawnedThisLevel === d.quota) levelUp(d);
   return { ...result, special: false };
 }

@@ -33,6 +33,7 @@ export const RANK_THRESHOLDS: Readonly<Record<string, readonly number[]>> = {
   'altiport': MEADOW,
   'hub': COAST,
   'fire-season': MEADOW,
+  'hangar-bay': AIRSHOW,
 };
 
 export function thresholdsFor(mapId: string): readonly number[] {

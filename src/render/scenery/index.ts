@@ -12,6 +12,7 @@ import { cityLights } from './city-lights';
 import { moonBase } from './moon-base';
 import { hub } from './hub';
 import { fireSeason } from './fire-season';
+import { hangarBay } from './hangar-bay';
 import type { Painter } from './shared';
 
 export type { Painter } from './shared';
@@ -30,6 +31,7 @@ export const PAINTERS: Record<string, Painter> = {
   'moon-base': moonBase,
   'hub': hub,
   'fire-season': fireSeason,
+  'hangar-bay': hangarBay,
 };
 
 export function paintPlain(g: Ctx): void {

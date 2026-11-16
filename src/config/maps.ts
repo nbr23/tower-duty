@@ -19,6 +19,7 @@ export interface Strip {
   parkSlots?: ParkSlot[];
   variants?: number;
   cameos?: string[];
+  flightSize?: number;
 }
 
 export interface Runway {
@@ -77,6 +78,7 @@ export interface MapDef {
   weather?: Weather;
   plume?: Plume;
   parkedWarningMargin?: number;
+  spawnSlots?: number[];
 }
 
 function slot(x: number, y: number, w: number, h: number, r: number): ParkSlot {
@@ -843,6 +845,35 @@ export const FIRE_SEASON: MapDef = {
   plume: { x: 790, y: 60, heading: 140 },
 };
 
+const HANGAR_BAY_DECKS = [105, 195, 285, 375];
+
+export const HANGAR_BAY: MapDef = {
+  id: 'hangar-bay',
+  title: 'Hangar Bay',
+  background: 'hangar-bay',
+  ...AIRSHOW_LEVELS,
+  colors: [0x4fd9ed, 0xffc65c],
+  strips: [
+    { name: 'panel fighter', weight: 3, type: 0, speed: 2.4, radius: 12, color: 0, flightSize: 3 },
+    { name: 'twin-pod bomber', weight: 2, type: 1, speed: 1.1, radius: 22, color: 0, turnRate: 2, flightSize: 2 },
+    { name: 'disc freighter', weight: 2, type: 0, speed: 1.4, radius: 18, color: 1, variants: 2 },
+    { name: 'tri-wing shuttle', weight: 2, type: 0, speed: 0.8, radius: 11, color: 0 },
+    { name: 'escort courier', weight: 2, type: 3, speed: 4, radius: 13, color: 1, special: true },
+    { name: 'blade bomber', weight: 1.5, type: 2, speed: 1.2, radius: 22, color: 1, turnRate: 1.8 },
+    { name: 'dart interceptor', weight: 2, type: 1, speed: 2.8, radius: 11, color: 1, flightSize: 2 },
+    { name: 'skimmer', weight: 2, type: 0, speed: 1.65, radius: 13, color: 1 },
+  ],
+  runways: [],
+  helipads: [
+    ...HANGAR_BAY_DECKS.map((y): Helipad => ({ x: 115, y, strips: [2, 4, 5, 6, 7], mark: 'target' })),
+    ...HANGAR_BAY_DECKS.map((y): Helipad => ({ x: 739, y, strips: [0, 1, 3], mark: 'target' })),
+  ],
+  landedHoldMs: 500,
+  special: { stripIndex: 4, recurBase: 4, recurRandom: 2, event: 'fastplanewarn' },
+  clouds: false,
+  spawnSlots: [0, 1, 2, 5, 6, 7],
+};
+
 export const MAP_SELECTOR: MapDef[] = [
   MEADOW,
   FLEET,
@@ -857,4 +888,5 @@ export const MAP_SELECTOR: MapDef[] = [
   ALTIPORT,
   HUB,
   FIRE_SEASON,
+  HANGAR_BAY,
 ];

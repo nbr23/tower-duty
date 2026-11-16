@@ -82,7 +82,7 @@ export function createAircraft(
       landedLocked: false,
       active: true,
       danger: false,
-      selectable: false,
+      selectable: true,
       entering: true,
       dragged: false,
     },

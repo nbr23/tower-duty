@@ -1,5 +1,5 @@
 import type { MapDef } from '../config/maps';
-import { isAirborne, type Aircraft } from './aircraft';
+import { fullyInside, isAirborne, type Aircraft } from './aircraft';
 import { detectCollisions, graceMs, WARNING_THROTTLE_MS } from './collision';
 import { beginRollout, chooseTaxi, decelerate, findCapture, HELIPAD_FADE_MS, RUNWAY_FADE_MS, steerZeppelin } from './landing';
 import { lerpPoint, type Point } from './geometry';
@@ -100,7 +100,7 @@ export function updateGame(game: Game, dt: number): void {
       if (a.path.length === 0) arrive(game, a);
     }
     recordTrail(a);
-    a.flags.selectable = isAirborne(a) && !a.flags.entering;
+    a.flags.selectable = isAirborne(a);
   }
 
   game.aircraft = game.aircraft.filter((a) => a.despawnAt === undefined || game.clock < a.despawnAt);
@@ -144,6 +144,7 @@ function fly(game: Game, a: Aircraft, dt: number): void {
     advance(a, dt);
     bounceOffEdges(a);
   }
+  if (a.flags.entering && fullyInside(a)) a.flags.entering = false;
   const zone = findCapture(game.world, a);
   if (zone !== null) land(game, a, zone);
 }

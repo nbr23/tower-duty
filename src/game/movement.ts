@@ -1,5 +1,5 @@
 import { WORLD_HEIGHT, WORLD_WIDTH } from '../config/world';
-import { directionFromHeading, fullyInside, type Aircraft } from './aircraft';
+import { directionFromHeading, type Aircraft } from './aircraft';
 import { angleDiff, distance, headingDeg, wrapDeg } from './geometry';
 
 export const FOLLOW_SUBSTEPS = 3;
@@ -53,5 +53,4 @@ export function bounceOffEdges(a: Aircraft): void {
     bounced = true;
   }
   if (bounced) a.heading = headingDeg({ x: 0, y: 0 }, v);
-  if (a.flags.entering && fullyInside(a)) a.flags.entering = false;
 }
