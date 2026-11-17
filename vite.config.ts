@@ -1,46 +1,11 @@
 import { defineConfig, loadEnv } from 'vite';
 import { VitePWA } from 'vite-plugin-pwa';
 import pkg from './package.json';
-import { MAP_SELECTOR, type MapDef } from './src/config/maps';
+import { MAP_SELECTOR } from './src/config/maps';
+import { mapPage } from './src/site/maps';
 
 function escapeAttr(value: string): string {
   return value.replaceAll('&', '&amp;').replaceAll('"', '&quot;');
-}
-
-function mapPage(map: MapDef, siteUrl: URL | undefined): string {
-  const title = `Tower Duty — ${map.title}`;
-  const description = `Can you beat my score on ${map.title}? Draw flight paths, guide aircraft to land, and keep the skies safe.`;
-  const alt = `Tower Duty: can you beat my score on ${map.title}? Aerial view of the ${map.title} airfield.`;
-  const image = escapeAttr(siteUrl ? new URL(`cards/${map.id}.jpg`, siteUrl).href : `../../cards/${map.id}.jpg`);
-  const pageUrl = siteUrl ? `<meta property="og:url" content="${escapeAttr(new URL(`m/${map.id}/`, siteUrl).href)}">` : '';
-  const game = `../../#${map.id}`;
-  return `<!doctype html>
-<html lang="en">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>${title}</title>
-<meta name="robots" content="noindex">
-<meta name="description" content="${description}">
-<meta property="og:type" content="website">
-<meta property="og:site_name" content="Tower Duty">
-<meta property="og:title" content="${title}">
-<meta property="og:description" content="${description}">
-<meta property="og:image" content="${image}">
-<meta property="og:image:type" content="image/jpeg">
-<meta property="og:image:width" content="1200">
-<meta property="og:image:height" content="630">
-<meta property="og:image:alt" content="${alt}">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="${title}">
-<meta name="twitter:description" content="${description}">
-<meta name="twitter:image" content="${image}">
-<meta name="twitter:image:alt" content="${alt}">
-${pageUrl}<script>location.replace('${game}')</script>
-</head>
-<body><a href="${game}">Play ${map.title} in Tower Duty</a></body>
-</html>
-`;
 }
 
 export default defineConfig(({ mode }) => {
@@ -57,6 +22,27 @@ export default defineConfig(({ mode }) => {
   plugins: [
     {
       name: 'site-metadata',
+      configureServer(server) {
+        server.middlewares.use((request, response, next) => {
+          const path = new URL(request.originalUrl ?? '/', 'http://localhost');
+          if (!path.pathname.startsWith('/m/')) return next();
+          const match = /^\/m\/([^/]+)(?:\/|\/index\.html)?$/.exec(path.pathname);
+          const map = MAP_SELECTOR.find((item) => item.id === match?.[1]);
+          if (!map) {
+            response.statusCode = 404;
+            response.end('Map not found');
+            return;
+          }
+          if (path.pathname === `/m/${map.id}`) {
+            response.statusCode = 308;
+            response.setHeader('Location', `${path.pathname}/${path.search}`);
+            response.end();
+            return;
+          }
+          response.setHeader('Content-Type', 'text/html; charset=utf-8');
+          response.end(mapPage(map, url));
+        });
+      },
       transformIndexHtml: {
         order: 'pre',
         handler(html) {
@@ -91,7 +77,7 @@ export default defineConfig(({ mode }) => {
         lang: 'en',
         categories: ['games', 'entertainment'],
         display: 'fullscreen',
-        orientation: 'landscape',
+        orientation: 'any',
         start_url: '.',
         scope: './',
         theme_color: '#11151a',

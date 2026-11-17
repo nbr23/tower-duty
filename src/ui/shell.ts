@@ -8,7 +8,6 @@ import type { Screen } from './screen';
 import { gameOverScreen } from './screens/gameOver';
 import { helpScreen } from './screens/help';
 import { highScoresScreen } from './screens/highScores';
-import { mapSelectScreen } from './screens/mapSelect';
 import { menuScreen } from './screens/menu';
 import { pauseScreen } from './screens/pause';
 import { playScreen } from './screens/play';
@@ -16,7 +15,6 @@ import { applyFullscreen, fullscreenWanted, prefsScreen } from './screens/prefs'
 
 const SCREENS: Record<ScreenId, Screen> = {
   menu: menuScreen,
-  mapSelect: mapSelectScreen,
   help: helpScreen,
   highScores: highScoresScreen,
   prefs: prefsScreen,
@@ -26,7 +24,7 @@ const SCREENS: Record<ScreenId, Screen> = {
 };
 
 const MENU_SCREENS: ReadonlySet<ScreenId> = new Set(['menu', 'paused', 'gameOver']);
-const SUB_SCREENS: ReadonlySet<ScreenId> = new Set(['help', 'highScores', 'prefs', 'mapSelect']);
+const SUB_SCREENS: ReadonlySet<ScreenId> = new Set(['help', 'highScores', 'prefs']);
 const ARROWS: ReadonlySet<string> = new Set(['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
 
 function actionTarget(event: Event): HTMLElement | null {
@@ -38,13 +36,7 @@ function enabled(el: HTMLElement | null): HTMLElement | null {
 }
 
 export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
-  window.addEventListener(
-    'pointerup',
-    () => {
-      if (fullscreenWanted(app.save.prefs)) applyFullscreen(true);
-    },
-    { capture: true, once: true },
-  );
+  const positions = new Map<ScreenId, { top: number; focus: string | undefined }>();
   let lastScreen = app.screen;
   let mounted: ScreenId | null = null;
   let view: HTMLElement | null = null;
@@ -56,7 +48,12 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
   const backAction = (): string | undefined => screen().keys?.Escape;
 
   function action(id: string): HTMLElement | null {
-    return enabled(view?.querySelector<HTMLElement>(`[data-action="${id}"]`) ?? null);
+    return enabled([...(view?.querySelectorAll<HTMLElement>(`[data-action="${id}"]`) ?? [])].find((el) => el.offsetParent !== null) ?? null);
+  }
+
+  function firstAction(): HTMLElement | undefined {
+    const candidates = [...(view?.querySelectorAll<HTMLElement>('[data-action]:not(:disabled)') ?? [])].filter((el) => el.offsetParent !== null);
+    return candidates.find((el) => el.hasAttribute('data-autofocus')) ?? candidates[0];
   }
 
   function syncBackGuard(): void {
@@ -78,18 +75,27 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
     dirty = false;
     const active = document.activeElement;
     const focused = active instanceof HTMLElement && root.contains(active) ? active.dataset.action : undefined;
+    if (previous !== null && view !== null) {
+      const scroll = view.querySelector<HTMLElement>('[data-scroll], .scroll, .help');
+      positions.set(previous, { top: scroll?.scrollTop ?? 0, focus: focused });
+    }
     mounted = app.screen;
     view = screen().view(app);
     const returning = previous !== null && SUB_SCREENS.has(previous) && MENU_SCREENS.has(app.screen);
     if (entering && !returning) view.classList.add('enter');
     root.replaceChildren(view);
-    const restore = !entering && focused !== undefined ? action(focused) : null;
-    const target = restore ?? (keyboard ? view.querySelector<HTMLElement>('[data-autofocus]') : null);
+    const saved = !entering || returning ? positions.get(app.screen) : undefined;
+    const scroll = view.querySelector<HTMLElement>('[data-scroll], .scroll, .help');
+    if (scroll !== null && saved !== undefined) scroll.scrollTop = saved.top;
+    const restore = saved?.focus === undefined ? null : action(saved.focus);
+    const target = restore ?? (keyboard ? firstAction() : null);
     target?.focus({ preventScroll: true });
   }
 
   function press(id: string, rebuild = true): void {
+    const previousSession = app.session;
     screen().press(app, id, performance.now());
+    if (app.screen === 'playing' && app.session !== previousSession && fullscreenWanted(app.save.prefs)) applyFullscreen(true);
     audio.setEnabled(app.save.prefs.sound);
     audio.play('menu_option');
     dirty ||= rebuild;
@@ -145,7 +151,7 @@ export function createAppMode(app: App, audio: Audio, root: HTMLElement): Mode {
       return;
     }
     if (!ARROWS.has(e.key) || (document.activeElement !== null && root.contains(document.activeElement))) return;
-    const first = view?.querySelector<HTMLElement>('[data-autofocus]') ?? view?.querySelector<HTMLElement>('[data-action]:not(:disabled)');
+    const first = firstAction();
     if (first == null) return;
     e.preventDefault();
     first.focus({ preventScroll: true });

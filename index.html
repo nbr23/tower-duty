@@ -4,14 +4,14 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#11151a" />
-    <meta name="description" content="Draw flight paths, guide aircraft to land, and keep the skies safe. Play Tower Duty, a free air traffic control game that works offline." />
+    <meta name="description" content="Draw flight paths, guide aircraft to land, and keep the skies safe. Play Tower Duty, an air traffic control game that works offline." />
     <meta name="application-name" content="Tower Duty" />
     <meta name="robots" content="index, follow" />
     <meta property="og:type" content="website" />
     <meta property="og:site_name" content="Tower Duty" />
     <meta property="og:locale" content="en_US" />
     <meta property="og:title" content="Tower Duty — Air Traffic Control Game" />
-    <meta property="og:description" content="Draw flight paths, guide aircraft to land, and keep the skies safe. Free to play, with offline support." />
+    <meta property="og:description" content="Draw flight paths, guide aircraft to land, and keep the skies safe. Play in your browser or offline." />
     <meta property="og:image" content="/social-card.png" />
     <meta property="og:image:type" content="image/png" />
     <meta property="og:image:width" content="1200" />
@@ -19,7 +19,7 @@
     <meta property="og:image:alt" content="Tower Duty: draw paths, land planes, keep the skies safe. Yellow aircraft on a dark radar display." />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="twitter:title" content="Tower Duty — Air Traffic Control Game" />
-    <meta name="twitter:description" content="Draw flight paths, guide aircraft to land, and keep the skies safe. Free to play, with offline support." />
+    <meta name="twitter:description" content="Draw flight paths, guide aircraft to land, and keep the skies safe. Play in your browser or offline." />
     <meta name="twitter:image" content="/social-card.png" />
     <meta name="twitter:image:alt" content="Tower Duty: draw paths, land planes, keep the skies safe. Yellow aircraft on a dark radar display." />
     <link rel="icon" href="/favicon.ico" sizes="16x16 32x32 48x48" />
@@ -32,7 +32,21 @@
   </head>
   <body>
     <canvas id="game" aria-hidden="true"></canvas>
-    <div id="ui"></div>
+    <div id="ui">
+      <main class="screen screen-menu">
+        <div class="menu-scroll">
+          <div class="lobby">
+            <h1 class="logo">Tower Duty</h1>
+            <p id="game-summary" class="lobby-summary">A free air traffic control game. Draw flight paths, land aircraft, and keep the skies safe.</p>
+            <section id="game-intro" class="menu-intro" aria-label="About Tower Duty">
+              <p>Climb from Amateur to Tower Legend by safely landing planes, helicopters, zeppelins, and more on maps ranging from relaxed to challenging!</p>
+              <p>Drag an aircraft with your mouse or finger to guide it to a runway or helipad of the same color. Avoid collisions!</p>
+              <p>Play in your browser or install for offline play.</p>
+            </section>
+          </div>
+        </div>
+      </main>
+    </div>
     <script type="module" src="/src/main.ts"></script>
   </body>
 </html>

@@ -2,37 +2,37 @@ import { MAP_SELECTOR, type MapDef } from '../../config/maps';
 import { rankFor, rankName } from '../../game/ranks';
 import { paintThumbnail } from '../../render/map';
 import { mapStats } from '../../state/save';
-import { goto, mapFor, previewWorld, startGame, type App } from '../app';
-import type { Screen } from '../screen';
-import { h, icon, screen, screenHeader } from '../widgets';
-import { drawBackdrop } from './backdrop';
+import { mapFor, previewWorld, type App } from '../app';
+import { h } from '../widgets';
 
 const THUMB_STEP = 128;
 const thumbs = new Map<string, HTMLCanvasElement>();
 
-export function mapCard(app: App, index: number, action: string | null = null): HTMLButtonElement {
+export function mapCard(app: App, index: number): HTMLButtonElement {
   const map = mapFor(index);
   const stats = mapStats(app.save, map.id);
   const rank = rankName(rankFor(stats.highscore));
-  const picker = action === null;
-  const current = picker && index === app.choice;
+  const current = index === app.choice;
   return h(
     'button',
     {
       type: 'button',
       class: current ? 'map-card current' : 'map-card',
-      'data-action': action ?? `map-${index}`,
-      'data-map': index,
-      'data-autofocus': current,
-      'aria-label': picker ? `${map.title}, best ${stats.highscore}, ${rank}` : `Choose map, current map ${map.title}`,
+      'data-action': `map-${index}`,
+      'aria-pressed': String(current),
+      'aria-label': `${map.title}, ${map.description}, best ${stats.highscore}, ${rank}`,
     },
-    h('span', { class: 'thumb' }),
+    h('span', { class: 'thumb', 'data-map': index, 'aria-hidden': 'true' }),
     h(
       'span',
       { class: 'map-caption' },
-      h('span', { class: 'map-tag' }, String(index + 1).padStart(2, '0')),
-      h('span', { class: 'map-text' }, h('span', { class: 'map-name' }, map.title), h('span', { class: 'map-meta' }, `Best ${stats.highscore} · ${rank}`)),
-      picker ? null : h('span', { class: 'map-change' }, 'Change', icon('next')),
+      h('span', { class: 'map-card-top' },
+        h('span', { class: 'map-tag' }, String(index + 1).padStart(2, '0')),
+        h('span', { class: 'map-selected' }, current ? 'Selected' : 'Select map'),
+      ),
+      h('span', { class: 'map-name' }, map.title),
+      h('span', { class: 'map-description' }, map.description),
+      h('span', { class: 'map-meta' }, h('span', {}, 'Best ', h('strong', {}, String(stats.highscore))), h('span', {}, rank)),
     ),
   );
 }
@@ -46,14 +46,18 @@ function arrowStep(grid: HTMLElement, key: string): number {
   return 0;
 }
 
-function onGridKey(grid: HTMLElement, e: KeyboardEvent): void {
-  const step = arrowStep(grid, e.key);
-  if (step === 0) return;
-  const cards = [...grid.querySelectorAll<HTMLElement>('.map-card')];
-  const index = cards.findIndex((c) => c === document.activeElement);
-  if (index < 0) return;
-  e.preventDefault();
-  cards[Math.min(cards.length - 1, Math.max(0, index + step))]?.focus();
+export function mapGrid(app: App): HTMLElement {
+  const grid = h('div', { class: 'map-grid', 'aria-label': 'Maps' }, ...MAP_SELECTOR.map((_, i) => mapCard(app, i)));
+  grid.addEventListener('keydown', (e) => {
+    const step = arrowStep(grid, e.key);
+    if (step === 0) return;
+    const cards = [...grid.querySelectorAll<HTMLButtonElement>('.map-card')];
+    const index = cards.findIndex((card) => card === document.activeElement);
+    if (index < 0) return;
+    e.preventDefault();
+    cards[Math.min(cards.length - 1, Math.max(0, index + step))]?.focus();
+  });
+  return grid;
 }
 
 function thumbnail(map: MapDef, width: number): HTMLCanvasElement {
@@ -67,35 +71,27 @@ function thumbnail(map: MapDef, width: number): HTMLCanvasElement {
 
 export function paintThumbs(view: HTMLElement): void {
   const dpr = window.devicePixelRatio || 1;
+  const viewport = view.querySelector('.menu-scroll')!.getBoundingClientRect();
   let painted = false;
-  for (const slot of view.querySelectorAll<HTMLElement>('.map-card .thumb:empty')) {
-    const card = slot.parentElement!;
-    const map = MAP_SELECTOR[Number(card.dataset.map)];
-    const width = Math.ceil((card.clientWidth * dpr) / THUMB_STEP) * THUMB_STEP;
-    if (map === undefined || width === 0) return;
+  for (const slot of view.querySelectorAll<HTMLElement>('.thumb[data-map]')) {
+    const rect = slot.getBoundingClientRect();
+    if (rect.bottom < viewport.top || rect.top > viewport.bottom) continue;
+    const map = MAP_SELECTOR[Number(slot.dataset.map)];
+    const width = Math.ceil((rect.width * dpr) / THUMB_STEP) * THUMB_STEP;
+    if (map === undefined || width === 0) continue;
+    let canvas = slot.querySelector('canvas');
+    if (canvas !== null && canvas.width >= width) continue;
     if ((thumbs.get(map.id)?.width ?? 0) < width) {
-      if (painted) return;
+      if (painted) continue;
       painted = true;
     }
-    slot.append(thumbnail(map, width));
+    const source = thumbnail(map, width);
+    if (canvas === null) {
+      canvas = h('canvas');
+      slot.append(canvas);
+    }
+    canvas.width = source.width;
+    canvas.height = source.height;
+    canvas.getContext('2d')!.drawImage(source, 0, 0);
   }
 }
-
-export const mapSelectScreen: Screen = {
-  view(app) {
-    const grid = h('div', { class: 'map-grid' }, ...MAP_SELECTOR.map((_, i) => mapCard(app, i)));
-    grid.addEventListener('keydown', (e) => onGridKey(grid, e));
-    return screen('sub', { 'data-screen': 'maps' }, screenHeader('Choose a map'), h('div', { class: 'scroll' }, grid));
-  },
-  press(app, id, now) {
-    if (id === 'back') goto(app, 'menu', 'menu');
-    else if (id.startsWith('map-')) startGame(app, Number(id.slice(4)), now);
-  },
-  draw(ctx, app) {
-    drawBackdrop(ctx, app);
-  },
-  frame(view) {
-    paintThumbs(view);
-  },
-  keys: { Escape: 'back' },
-};

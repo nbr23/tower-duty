@@ -5,7 +5,7 @@ import { createDragController, resetInput, type DragController } from '../input/
 import { loadSave, mapStats, recordGame, writeSave, type Prefs, type RecordOutcome, type Save } from '../state/save';
 import { GAME_OVER_FADE_MS, PAUSE_FADE_MS, START_FADE_MS, startFade, type Fade } from './fade';
 
-export type ScreenId = 'menu' | 'mapSelect' | 'help' | 'highScores' | 'prefs' | 'playing' | 'paused' | 'gameOver';
+export type ScreenId = 'menu' | 'help' | 'highScores' | 'prefs' | 'playing' | 'paused' | 'gameOver';
 
 export interface Session {
   game: Game;
@@ -75,8 +75,10 @@ export function setPrefs(app: App, patch: Partial<Prefs>): void {
   persist(app);
 }
 
-export function openMapSelect(app: App): void {
-  goto(app, 'mapSelect', 'menu');
+export function selectMap(app: App, choice: number): void {
+  app.choice = validChoice(choice);
+  app.save.lastMap = app.choice;
+  persist(app);
 }
 
 export function openHelp(app: App, back: ScreenId): void {
@@ -85,9 +87,7 @@ export function openHelp(app: App, back: ScreenId): void {
 }
 
 export function startGame(app: App, choice: number, now: number): void {
-  app.choice = validChoice(choice);
-  app.save.lastMap = app.choice;
-  persist(app);
+  selectMap(app, choice);
   const map = mapFor(app.choice);
   const { prefs } = app.save;
   const game = createGame(map, app.fixedSeed ?? Date.now() >>> 0, {

@@ -190,8 +190,8 @@ export const helpScreen: Screen = {
     else if (id.startsWith('slide-')) app.helpSlide = Math.min(HELP_SLIDES - 1, Math.max(0, Number(id.slice(6))));
     else if (id === 'back') goto(app, app.back, 'menu');
   },
-  draw(ctx, app) {
-    drawBackdrop(ctx, app);
+  draw(ctx) {
+    drawBackdrop(ctx);
   },
   frame(view, app, now) {
     const canvas = view.querySelector<HTMLCanvasElement>('canvas.help-scene');

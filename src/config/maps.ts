@@ -70,6 +70,7 @@ export interface SpecialDef {
 export interface MapDef {
   id: string;
   title: string;
+  description: string;
   background: string;
   planesPerLevel: number[];
   intervals: number[];
@@ -206,6 +207,7 @@ const MEADOW_TAXI_B: Local[][] = [
 export const MEADOW: MapDef = {
   id: 'meadow',
   title: 'Meadow',
+  description: 'A country airfield',
   background: 'meadow',
   ...MEADOW_LEVELS,
   colors: RED_BLUE_YELLOW,
@@ -224,6 +226,7 @@ export const FLEET_ESCORT: Frame = { origin: { x: 640, y: 410 }, angle: -5 };
 export const FLEET: MapDef = {
   id: 'fleet',
   title: 'Fleet',
+  description: 'Jets at sea',
   background: 'fleet',
   planesPerLevel: [3, 4, 6, 7, 8, 9, 10, 11, 12, 13, 16],
   intervals: [
@@ -336,6 +339,7 @@ const LAKESIDE_EXIT: Local[] = [
 export const LAKESIDE: MapDef = {
   id: 'lakeside',
   title: 'Lakeside',
+  description: 'Along the shoreline',
   background: 'lakeside',
   ...LAKE_DESERT_LEVELS,
   colors: RED_BLUE_YELLOW,
@@ -356,6 +360,7 @@ export const AIRSHOW_SITE: Frame = { origin: { x: 150, y: 305 }, angle: 7.4 };
 export const AIRSHOW: MapDef = {
   id: 'airshow',
   title: 'Airshow',
+  description: 'Props and zeppelins',
   background: 'airshow',
   ...AIRSHOW_LEVELS,
   colors: [0xc9b700, 0xde8027, 0xcdb679, 0xe6dd84],
@@ -452,6 +457,7 @@ export const AIRSHOW: MapDef = {
 export const CANYON: MapDef = {
   id: 'canyon',
   title: 'Canyon',
+  description: 'Desert approaches',
   background: 'canyon',
   ...LAKE_DESERT_LEVELS,
   colors: RED_BLUE_YELLOW,
@@ -511,6 +517,7 @@ const COAST_LEVELS = {
 export const COAST: MapDef = {
   id: 'coast',
   title: 'Coast',
+  description: 'Carriers meet the coast',
   background: 'coast',
   ...COAST_LEVELS,
   colors: [0xffffff, 0xf15c6f, 0x39aadc, 0xc1cd00, 0x41db49, 0xdbaa41, 0x7f41d8],
@@ -650,6 +657,7 @@ export const ARCTIC_ICEBREAKER: Frame = { origin: { x: 740, y: 379 }, angle: -15
 export const ARCTIC_OUTPOST: MapDef = {
   id: 'arctic-outpost',
   title: 'Arctic Outpost',
+  description: 'Supply the frozen north',
   background: 'arctic-outpost',
   ...LAKE_DESERT_LEVELS,
   colors: [0xe8454f, 0x2f7fd6, 0xf09a1e],
@@ -671,6 +679,7 @@ export const ARCTIC_OUTPOST: MapDef = {
 export const VOLCANO_ISLAND: MapDef = {
   id: 'volcano-island',
   title: 'Volcano Island',
+  description: 'Seaplanes under ash',
   background: 'volcano-island',
   ...MEADOW_LEVELS,
   colors: [0xffd23f, 0xf15c6f, 0xffffff],
@@ -695,6 +704,7 @@ export const VOLCANO_ISLAND: MapDef = {
 export const CITY_LIGHTS: MapDef = {
   id: 'city-lights',
   title: 'City Lights',
+  description: 'Work the night shift',
   background: 'city-lights',
   ...MEADOW_LEVELS,
   colors: [0xffb648, 0x4fc3ff, 0xff5c8a],
@@ -742,6 +752,7 @@ export const CITY_LIGHTS: MapDef = {
 export const MOON_BASE: MapDef = {
   id: 'moon-base',
   title: 'Moon Base',
+  description: 'Lunar arrivals',
   background: 'moon-base',
   ...AIRSHOW_LEVELS,
   colors: [0xffffff, 0x39d0dc, 0xe6b422, 0xf07a2a, 0x7cf05a],
@@ -770,6 +781,7 @@ export const MOON_BASE: MapDef = {
 export const ALTIPORT: MapDef = {
   id: 'altiport',
   title: 'Altiport',
+  description: 'Gliders in the peaks',
   background: 'altiport',
   ...MEADOW_LEVELS,
   colors: RED_BLUE_YELLOW,
@@ -799,6 +811,7 @@ export const HUB_APRONS = [
 export const HUB: MapDef = {
   id: 'hub',
   title: 'Hub',
+  description: 'Rush hour at the airport',
   background: 'hub',
   ...COAST_LEVELS,
   colors: [0xf15c6f, 0x39aadc, 0xdbaa41, 0xc1cd00, 0x41db49],
@@ -831,6 +844,7 @@ export const HUB: MapDef = {
 export const FIRE_SEASON: MapDef = {
   id: 'fire-season',
   title: 'Fire Season',
+  description: 'Fight fire from the air',
   background: 'fire-season',
   ...MEADOW_LEVELS,
   colors: [0x4fb3e8, 0xf2683c, 0xf4d03f],
@@ -860,6 +874,7 @@ const HANGAR_BAY_DECKS = [105, 195, 285, 375];
 export const HANGAR_BAY: MapDef = {
   id: 'hangar-bay',
   title: 'Hangar Bay',
+  description: 'Bring the squadron home',
   background: 'hangar-bay',
   ...AIRSHOW_LEVELS,
   colors: [0x4fd9ed, 0xffc65c],
@@ -887,6 +902,7 @@ export const HANGAR_BAY: MapDef = {
 export const LOST_VALLEY: MapDef = {
   id: 'lost-valley',
   title: 'Lost Valley',
+  description: 'Into the mist',
   background: 'lost-valley',
   ...AIRSHOW_LEVELS,
   colors: [0xf2873a, 0x4fc3e8, 0xf4d03f, 0xefe6c8],

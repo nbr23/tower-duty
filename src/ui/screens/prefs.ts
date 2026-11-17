@@ -57,8 +57,8 @@ export const prefsScreen: Screen = {
     const entry = TOGGLES.find(([key]) => key === id);
     if (entry !== undefined) toggleKey(app, entry[0]);
   },
-  draw(ctx, app) {
-    drawBackdrop(ctx, app);
+  draw(ctx) {
+    drawBackdrop(ctx);
   },
   keys: { Escape: 'back' },
 };
